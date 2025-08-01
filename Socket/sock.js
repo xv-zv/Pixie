@@ -12,14 +12,17 @@ const F = require('./Utils/funcs.js');
 
 class Socket {
    #args = null
-   #limit = 0
    #sock = null
-   #sockO = false
    constructor(args) {
-      this.#args = {}
+      this.#args = args
+      this.sockOnline = false
    }
    
    #listEvents = (sock, opc = {}) => [
+   {
+      event: 'creds.update',
+      func: opc.saveCreds
+   },
    {
       event: 'connection.update',
       func: async ({ connection, ...update }) => {
@@ -41,45 +44,48 @@ class Socket {
             if (isDelete) {
                fs.removeSync(opc.path)
                this.emit('status', 'delete')
-               return this.#close()
+               return this.closeSesion()
             }
             
-            this.#close()
-            this.#limit += 1
+            this.closeSesion()
             this.emit('status', 'restart')
             this.start()
             
          } else if (isOnline || isOpen) {
-            this.#online = true
+            this.sockOnline = true
             this.emit('status', isOnline ? 'online' : 'open')
          }
       }
    },
    {
       event: 'messages.upsert',
-      func: ({ type , messages: [msgCtx]}) => {
+      func: ({ type, messages: [msgCtx] }) => {
          
-         if(type === 'notify'){
+         if (type === 'notify') {
             
             const msg = msgCtx[0].message
             const msgType = getContentType(msg)
             const msg = msg[msgType]
-            const body = (msgType == 'conversation') ? msg : (msgType == 'extendedTextMessage') ? msg.text : ['video','image','document'].some(i => msgType.startsWith(i)) ?  msg.caption : null
+            const body = (msgType == 'conversation') ? msg : (msgType == 'extendedTextMessage') ? msg.text : ['video', 'image', 'document'].some(i => msgType.startsWith(i)) ? msg.caption : null
             
-           if(body) {
-              
-           }
-           
+            if (body) {
+               
+               const isCmd = opc.prefix.some(i => body.startsWith(i))
+               
+               let text = body.trim()
+               
+               if (isCmd) {
+                  
+                  const [cmd, ...args] = body.slice(1).trim().split(/ +/)
+                  
+                  text = args.join(' ').trim()
+                  
+               }
+            }
          }
       }
    }]
    
-   #close = () => {
-      if (!this.#sock) return
-      if (this.#online) this.#sock.ws.close()
-      this.#sock.ev.removeAllListeners()
-      this.#sock = null
-   }
    
 }
 
@@ -115,13 +121,21 @@ Object.defineProperties(Socket.prototype, {
       }
    },
    bot: {
-      get(){
+      get() {
          const user = this.#sock.user
          return {
             name: user?.name || 'annonymous',
             id: F.setUser(user?.id || ''),
             lid: F.setUser(user?.lid || '')
          }
+      }
+   },
+   closeSesion: {
+      value: () => {
+         if (!Boolean(this.sock)) return
+         if (this.sockOnline) this.#sock.ws.close()
+         this.#sock.ev.removeAllListeners()
+         this.#sock = null
       }
    }
 })
