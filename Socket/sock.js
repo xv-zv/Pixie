@@ -6,136 +6,101 @@ const {
    getContentType
 } = require('@whiskeysockets/baileys')
 
-const P = require('pino');
+const pino = require('pino');
 const fs = require('fs-extra');
 const F = require('./Utils/funcs.js');
+const { Events } = require('./Utils/class.js');
+const {
+   DELETE_SESSION_REASONS,
+   RETRY_REASONS
+} = require('./Utils/utils.js')
 
 class Socket {
-   #args = null
    #sock = null
+   #args
    constructor(args) {
       this.#args = args
-      this.sockOnline = false
    }
    
-   #listEvents = (sock, opc = {}) => [
-   {
-      event: 'creds.update',
-      func: opc.saveCreds
-   },
+   start = async () => {
+      
+      const logger = pino({ level: 'silent' })
+      const { state, saveCreds } = await useMultiFileAuthState(this.#args.path)
+      
+      this.#sock = await makeWASocket({
+         logger,
+         auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, logger)
+         },
+         browser: Browsers.ubuntu('Chrome')
+      })
+      
+      const events = this.#listEvents(saveCreds)
+      
+      events.forEach(({ func, event }) => {
+         this.#sock.ev.on(event, func)
+      })
+   }
+   
+   #listEvents = (saveCreds) => [
    {
       event: 'connection.update',
-      func: async ({ connection, ...update }) => {
+      func: async ({ connection, ...updateCtx }) => {
          
-         if (opc.isNewReg && !!update.qr && opc.phone) {
-            const token = await this.#sock.requestPairingCode(opc.phone)
-            this.off('code', token)
+         const isNewReg = Boolean(this.#sock.authState?.creds?.registered)
+         const isQrCode = Boolean(updateCtx.qr)
+         const isPhone = Boolean(this.#args.phone)
+         
+         if (isNewReg && isQrCode) {
+            if (isPhone) {
+               const code = await this.#sock.requestPairingCode(this.#args.phone.replace(/\D/g, ''))
+               this.ev.off('code', code)
+            }
          }
          
          const isClose = connection == 'close'
          const isOpen = connection == 'open'
-         const isOnline = Boolean(update.receivedPendingNotifications)
+         const isOnline = Boolean(updateCtx?.receivedPendingNotifications)
          
          if (isClose) {
-            const statusCode = update.lastDisconnect.error?.output?.statusCode
             
-            const isDelete = [DisconnectReason.connectionReplaced, DisconnectReason.loggedOut].includes(statusCode)
+            const statusCode = updateCtx.lastDisconnect.error?.output?.statusCode
+            
+            const isDelete = DELETE_SESSION_REASONS.includes(statusCode)
+            const isRetry = RETRY_REASONS.includes(statusCode)
             
             if (isDelete) {
-               fs.removeSync(opc.path)
-               this.emit('status', 'delete')
-               return this.closeSesion()
+               fs.removeSync(this.#args.path)
+               this.close()
+               return this.ev.emit('status', 'delete')
             }
-            
-            this.closeSesion()
-            this.emit('status', 'restart')
-            this.start()
-            
+            if (isRetry) {
+               this.close()
+               this.ev.emit('status', 'retry')
+               this.start()
+            }
          } else if (isOnline || isOpen) {
-            this.sockOnline = true
-            this.emit('status', isOnline ? 'online' : 'open')
-         }
-      }
-   },
-   {
-      event: 'messages.upsert',
-      func: ({ type, messages: [msgCtx] }) => {
-         
-         if (type === 'notify') {
-            
-            const msg = msgCtx[0].message
-            const msgType = getContentType(msg)
-            const msg = msg[msgType]
-            const body = (msgType == 'conversation') ? msg : (msgType == 'extendedTextMessage') ? msg.text : ['video', 'image', 'document'].some(i => msgType.startsWith(i)) ? msg.caption : null
-            
-            if (body) {
-               
-               const isCmd = opc.prefix.some(i => body.startsWith(i))
-               
-               let text = body.trim()
-               
-               if (isCmd) {
-                  
-                  const [cmd, ...args] = body.slice(1).trim().split(/ +/)
-                  
-                  text = args.join(' ').trim()
-                  
-               }
-            }
+            this.ev.emit('status', isOnline ? 'online' : 'open')
          }
       }
    }]
    
-   
+   close = () => {
+      if (!this.#sock) return
+      this.#sock.ws.close()
+      this.#sock.ws.removeAllListeners()
+      this.#sock = null
+   }
 }
 
 Object.defineProperties(Socket.prototype, {
-   start: {
-      value: () => {
-         
-         const logger = P({ level: 'silent' })
-         const { state, saveCreds } = await useMultiFileAuthState(this.#args.path)
-         
-         this.#sock = await makeWASocket({
-            logger,
-            auth: {
-               creds: state.creds,
-               keys: makeCacheableSignalKeyStore(state.keys, logger)
-            },
-            browser: Browser.ubuntu('Chrome')
-         })
-         
-         const opc = {
-            saveCreds,
-            phone: (this.#args.phone || '').replace(/\D/g, ''),
-            isNewReg: Boolean(this.#sock.authState?.creds?.isNewReg),
-            path: this.#args.path
-         }
-         
-         const events = this.#listEvents(opc)
-         
-         events.forEach(({ event, func }) => {
-            this.#sock.ev.on(event, func)
-         })
-         
-      }
+   ev: {
+      value: new Events()
    },
-   bot: {
-      get() {
-         const user = this.#sock.user
-         return {
-            name: user?.name || 'annonymous',
-            id: F.setUser(user?.id || ''),
-            lid: F.setUser(user?.lid || '')
-         }
-      }
-   },
-   closeSesion: {
-      value: () => {
-         if (!Boolean(this.sock)) return
-         if (this.sockOnline) this.#sock.ws.close()
-         this.#sock.ev.removeAllListeners()
-         this.#sock = null
+   command: {
+      value(cmd, func) {
+         this.ev.command(cmd, func)
       }
    }
 })
