@@ -8,7 +8,7 @@ const {
 
 const pino = require('pino');
 const fs = require('fs-extra');
-const SocketEmitter = require('./funcs.js');
+const SocketEmitter = require('./main.js');
 const { Message } = require('./Utils/msg.js');
 
 const {
