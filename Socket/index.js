@@ -38,7 +38,7 @@ class Socket extends SocketEmitter {
       
       Object.defineProperties(this, {
          sock: { value: sock },
-         getMsg: { value: new Message },
+         getMsg: { value: new Message(this) },
       })
       
       const events = this.#listEvents(saveCreds)
@@ -98,10 +98,10 @@ class Socket extends SocketEmitter {
          if (type == 'notify') {
             
             const m = this.getMsg(message)
+            console.log(m)
+          //  const isCmd = m.data.body.isCmd
             
-            const isCmd = m.data.body.isCmd
-            
-            if (isCmd) this.ev.emitCmd(m.data.body.cmd, m.data, this)
+           // if (isCmd) this.ev.emitCmd(m.data.body.cmd, m.data, this)
          }
       }
    },
