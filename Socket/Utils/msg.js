@@ -56,7 +56,9 @@ class Message {
             sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
             name: content.pushName,
             isGroup,
-            isBot
+            isBot,
+            isMe,
+            isUser
          }
          
          const msg = this.getMsg(message)

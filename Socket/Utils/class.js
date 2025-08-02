@@ -32,7 +32,7 @@ class Events {
       delete this.events[event]
    }
    
-   #isListner = listner => typeof listner == 'function'
+   #isListner = l => typeof l == 'function'
 }
 
 
