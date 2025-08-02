@@ -1,6 +1,10 @@
 const { Socket } = require('./Socket')
 const Utils = require('./Utils')
 
+Object.assign(global,{
+   origin: __dirname
+})
+
 async function start() {
    
    const load = (new Utils.Load()).start()
