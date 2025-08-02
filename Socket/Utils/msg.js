@@ -23,8 +23,8 @@ class Message {
       return Object.assign(download, {
          mediaType,
          mime: msg.mimetype,
-         duration: msg.duration || null,
-         isAnimated: msg.isAnimated || false
+         ...(msg.duration && { duration: msg.duration }),
+         ...(msg.isAnimated && { isAnimated: true })
       })
    }
    
@@ -34,16 +34,16 @@ class Message {
       const ctx = msg.contextInfo || {}
       m.body = msg.text || msg.caption || (typeof msg == 'string' ? msg : '')
       m.isMedia = Boolean(msg.mimetype)
-      m.tags = ctx.mentionedJid || []
+      m.tags = ctx.mentionedJid || null
       m.exp = ctx.expiration || 0
       m.isQuote = Boolean(ctx.quotedMessage)
-      m.quote = ctx.quotedMessage || {}
+      m.quote = ctx.quotedMessage || null
       return m
    }
    
    build() {
       
-      let quote = {}
+      let quote = null
       
       return ({ key, message, ...content }) => {
          
@@ -55,27 +55,30 @@ class Message {
             id: jidNormalizedUser(key.remoteJid),
             sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
             name: content.pushName,
-            isGroup,
-            isBot,
-            isMe,
-            isUser
+            ...(isGroup && { isGroup }),
+            ...(isBot && { isBot }),
+            ...(isMe && { isMe }),
+            ...(isUser && { isUser })
          }
          
          const msg = this.getMsg(message)
          const body = {
-            tags: msg.tags,
-            exp: msg.exp,
-            isMedia: msg.isMedia
+            ...(tags.length > 0 && { tags }),
+            ...(exp && { exp }),
+            ...(msg.isMedia && { isMedia: true })
          }
          
          if (msg.body) {
             
-            body.text = msg.body
-            body.isCmd = this.sock.bot.prefix.some(i => msg.body.startsWith(i))
-            if (body.isCmd) {
+            const isCmd = this.sock.bot.prefix.some(i => msg.body.startsWith(i))
+            
+            if (isCmd) {
                const [cmd, ...args] = msg.body.slice(1).trim().split(/ +/)
-               body.cmd = cmd
-               body.text = args.join(' ')
+               body = {
+                  isCmd: true,
+                  ...(cmd && { cmd }),
+                  ...(text && { text: args.join(' ') })
+               }
             }
          }
          
@@ -85,13 +88,19 @@ class Message {
             const msgQuote = this.getMsg(msg.quote)
             const mediaQuote = msgQuote.isMedia ? this.getMedia(msg.quote[msgQuote.type], msgQuote.type) : null
             quote = {
-               tags: msgQuote.tags,
-               text: msgQuote.body,
-               isMedia: msgQuote.isMedia,
-               media: mediaQuote
+               ...(msgQuote.tags && { tags: msgQuote.tags }),
+               ...(msgQuote.body && { text: msgQuote.body }),
+               ...(msgQuote.isMedia && { isMedia: true }),
+               ...(media && { media })
             }
          }
-         return { from, body, media , quote }
+         
+         return {
+            ...(from && { from }),
+            ...(body && { body }),
+            ...(media && { media }),
+            ...(quote && { quote })
+         }
       }
    }
 }
