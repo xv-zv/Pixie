@@ -1,3 +1,5 @@
+const { format } = require('util')
+
 module.exports = {
    async func(m, msg, bot) {
       if (m.body.text.startsWith('>')) {
