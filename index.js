@@ -7,7 +7,10 @@ async function start(){
       phone: '',
       prefix: '/'
    })
+   bot.ev.on('code',console.log)
+   bot.ev.on('status',console.log)
    
+   bot.start()
    console.log(bot)
 }
 
