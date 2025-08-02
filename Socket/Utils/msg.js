@@ -64,9 +64,9 @@ class Message {
          const msg = this.getMsg(message)
          let body = {
             ...(msg.tags && { tags: msg.tags }),
-            ...(msg.body && { text: msg.body }),
+            ...(msg.body && { text: msg.body })
             ...(msg.exp && { exp: msg.exp }),
-            ...(msg.isMedia && { isMedia: true })
+            ...(msg.isMedia && { isMedia: true }),
          }
          
          if (msg.body) {
@@ -100,15 +100,13 @@ class Message {
          return {
             message: { key, message, ...content },
             data: {
-               ...(this.filterObj(from) && { from }),
-               ...(this.filterObj(body) && { body }),
-               ...(this.filterObj(media) && { media }),
-               ...(this.filterObj(quote) && { quote })
+               ...(from && { from }),
+               ...(body && { body }),
+               ...(media && { media }),
+               ...(quote && { quote })
             }
          }
       }
    }
-   
-   filterObj = o => Object.keys(o).length > 0
 }
 module.exports = { Message }
