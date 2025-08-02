@@ -53,7 +53,7 @@ class Socket extends SocketEmitter {
          
          if (isNewReg && isQrCode) {
             if (isPhone) {
-               const code = await this.sock.requestPairingCode(this.#args.phone.replace(/\D/g, ''))
+               const code = await this.sock.requestPairingCode(this.args.phone)
                this.ev.off('code', code)
             }
          }
@@ -80,6 +80,7 @@ class Socket extends SocketEmitter {
                this.start()
             }
          } else if (isOnline || isOpen) {
+            this.online = true
             this.ev.emit('status', isOnline ? 'online' : 'open')
          }
       }
@@ -87,8 +88,10 @@ class Socket extends SocketEmitter {
    
    close = () => {
       if (!this.sock) return
-      this.sock.ws.close()
+      if (!this.online) this.sock.ws.close()
       this.sock.ws.removeAllListeners()
       this.sock = null
    }
 }
+
+module.exports = { Socket }

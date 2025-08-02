@@ -1,0 +1,12 @@
+{
+   "name": "pixie",
+   "version": "1.0.0",
+   "description": "Pixie-Bot",
+   "main": "index.js",
+   "author": "Vy Svn",
+   "license": "ISC",
+   "dependencies": {
+      "@whiskeysockets/baileys": "^6.7.18",
+      "fs-extra": "^11.3.0"
+   }
+}

@@ -1,4 +1,4 @@
-const Events = require('./Utils/class.js')
+const { Events } = require('./Utils/class.js')
 
 class SocketEmiter {
    constructor(args) {
@@ -7,9 +7,11 @@ class SocketEmiter {
          phone: args.phone.replace(/\D/g,''),
          prefix: Array.isArray(args.prefix) ? args.prefix : [args.prefix || '/']
       }
+      this.online = false
    }
    
    sendMessage = (id, content, opc = {}) => {
+      if(!this.online) return
       return this.sock.sendMessage(id, {
          ...content,
          viewOnce: Boolean(opc.once),
