@@ -9,7 +9,7 @@ const {
 const pino = require('pino');
 const fs = require('fs-extra');
 const SocketEmitter = require('./funcs.js');
-const { Message } = require('./Utils/class.js');
+const { Message } = require('./Utils/msg.js');
 
 const {
    DELETE_SESSION_REASONS,
