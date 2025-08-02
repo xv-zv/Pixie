@@ -35,7 +35,7 @@ class Message {
       m.body = msg.text || msg.caption || (typeof msg == 'string' ? msg : '')
       m.isMedia = Boolean(msg.mimetype)
       m.tags = ctx.mentionedJid || null
-      m.exp = ctx.expiration || 0
+      m.exp = ctx.expiration || null
       m.isQuote = Boolean(ctx.quotedMessage)
       m.quote = ctx.quotedMessage || null
       return m
@@ -63,7 +63,7 @@ class Message {
          
          const msg = this.getMsg(message)
          const body = {
-            ...(tags.length > 0 && { tags }),
+            ...(msg.tags && { tags: msg.tags }),
             ...(exp && { exp }),
             ...(msg.isMedia && { isMedia: true })
          }
