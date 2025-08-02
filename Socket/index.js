@@ -60,8 +60,11 @@ class Socket extends SocketEmitter {
             const msg = msgAll.message
             
             const isCmd = m.body.isCmd
+            const isMedia = m.body.isMedia
             
             if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
+            if (isMedia) this.ev.emit('media', m, msg)
+            if (!isCmd && !isMedia) this.ev.emit('text', m, msg)
          }
       }
    },
