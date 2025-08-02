@@ -1,4 +1,4 @@
-const Socket = require('./Socket')
+const { Socket } = require('./Socket')
 
 async function start(){
    
