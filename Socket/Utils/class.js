@@ -6,6 +6,7 @@ const {
 class Message {
    constructor(bot) {
       this.bot = bot
+      this.sock = bot.sock
       return this.build()
    }
    

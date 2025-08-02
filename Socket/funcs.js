@@ -1,6 +1,7 @@
 const { Events  } = require('./Utils/class.js')
 
 class SocketEmiter {
+   
    constructor(args) {
       this.args = {
          path: args.path || 'Sesion',
@@ -31,7 +32,7 @@ Object.defineProperties(SocketEmiter.prototype, {
       get(){
          const user = this.sock.user || {}
          return {
-            id: user.id?.replace(/:d+/,'') || null,
+            id: user.id?.replace(/:\d+/,'') || null,
             lid: user.lid?.replace(/:\d+/,'') || null,
             name: user.name || 'annonymous',
             prefix: this.args.prefix

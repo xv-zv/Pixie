@@ -17,6 +17,7 @@ const {
 } = require('./Utils/utils.js')
 
 class Socket extends SocketEmitter {
+
    constructor(args) {
       super(args)
    }
@@ -26,7 +27,7 @@ class Socket extends SocketEmitter {
       const logger = pino({ level: 'silent' })
       const { state, saveCreds } = await useMultiFileAuthState(this.args.path)
       
-      this.sock = await makeWASocket({
+     const sock = await makeWASocket({
          logger,
          auth: {
             creds: state.creds,
@@ -35,7 +36,10 @@ class Socket extends SocketEmitter {
          browser: Browsers.ubuntu('Chrome')
       })
       
-      this.getMsg = new Message(this)
+      Object.defineProperties(this, {
+         sock: { value: sock },
+         getMsg: { value: new Message },
+      })
       
       const events = this.#listEvents(saveCreds)
       
