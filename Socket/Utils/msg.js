@@ -35,6 +35,8 @@ class Message {
       m.body = msg.text || msg.caption || (typeof msg == 'string' ? msg : '')
       m.isMedia = Boolean(msg.mimetype)
       m.tags = ctx.mentionedJid?.length > 0 ? ctx.mentionedJid : null
+      m.sender = ctx.participant || null
+      m.id = ctx.stanzaId || null
       m.exp = ctx.expiration || null
       m.isQuote = Boolean(ctx.quotedMessage)
       m.quote = ctx.quotedMessage || null
@@ -51,6 +53,7 @@ class Message {
          const isUser = !key.fromMe && (Boolean(key.participant) || !('status' in content))
          const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.user.name)
          const isBot = !isUser && content.status == 1
+         
          const from = {
             id: jidNormalizedUser(key.remoteJid),
             sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
@@ -58,11 +61,13 @@ class Message {
             ...(isGroup && { isGroup }),
             ...(isBot && { isBot }),
             ...(isMe && { isMe }),
-            ...(isUser && { isUser })
+            ...(isUser && { isUser }),
+            ...(content.broadcast && { isBc: true })
          }
          
          const msg = this.getMsg(message)
          let body = {
+            ...(key.id && { id: key.id }),
             ...(msg.tags && { tags: msg.tags }),
             ...(msg.body && { text: msg.body }),
             ...(msg.exp && { exp: msg.exp }),
@@ -90,6 +95,8 @@ class Message {
             const msgQuote = this.getMsg(msg.quote)
             const mediaQuote = msgQuote.isMedia ? this.getMedia(msg.quote[msgQuote.type], msgQuote.type) : null
             quote = {
+               ...(msg.sender && { sender: msg.sender }),
+               ...(msg.id && { id: msg.id }),
                ...(msgQuote.tags && { tags: msgQuote.tags }),
                ...(msgQuote.body && { text: msgQuote.body }),
                ...(msgQuote.isMedia && { isMedia: true }),
