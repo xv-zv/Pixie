@@ -62,7 +62,7 @@ class Message {
          }
          
          const msg = this.getMsg(message)
-         const body = {
+         let body = {
             ...(msg.tags && { tags: msg.tags }),
             ...(msg.exp && { exp: msg.exp }),
             ...(msg.isMedia && { isMedia: true })
@@ -75,6 +75,7 @@ class Message {
             if (isCmd) {
                const [cmd, ...args] = msg.body.slice(1).trim().split(/ +/)
                body = {
+                  ...body,
                   isCmd: true,
                   ...(cmd && { cmd }),
                   ...(args.length > 0 && { text: args.join(' ') })
