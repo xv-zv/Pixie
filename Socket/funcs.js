@@ -2,10 +2,10 @@ const { Events  } = require('./Utils/class.js')
 
 class SocketEmiter {
    
-   constructor(args) {
+   constructor(args = {}) {
       this.args = {
          path: args.path || 'Sesion',
-         phone: args.phone.replace(/\D/g,''),
+         phone: args.phone?.replace(/\D/g,''),
          prefix: Array.isArray(args.prefix) ? args.prefix : [args.prefix || '/']
       }
       this.online = false
@@ -18,7 +18,7 @@ class SocketEmiter {
          viewOnce: Boolean(opc.once),
          contextInfo: {
             expiration: opc.expiration || 0,
-            mentions: opc.mentions || []
+            mentionedJid: opc.tags || []
          }
       }, { quoted: opc.quoted || null })
    }
