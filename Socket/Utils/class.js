@@ -63,7 +63,7 @@ class Message {
          from.sender = jidNormalizedUser(ctx.isGroup ? key.participant : (ctx.isMe || ctx.isBot) ? this.sock.bot.id : key.remoteJid)
          from.name = content.pushName
          
-         const msg = this.getBody(message)
+         const msg = this.getMsg(message)
          ctx.isMedia = msg.isMedia
          ctx.isQuote = msg.isQuote
          
