@@ -59,8 +59,8 @@ class Socket extends SocketEmitter {
             const m = msgAll.data
             const msg = msgAll.message
             
-            const isCmd = m.body.isCmd
-            const isMedia = m.body.isMedia
+            const isCmd = m.body?.isCmd
+            const isMedia = m.body?.isMedia
             
             if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
             if (isMedia) this.ev.emit('media', m, msg)
