@@ -77,7 +77,7 @@ class Message {
                body = {
                   isCmd: true,
                   ...(cmd && { cmd }),
-                  ...(text && { text: args.join(' ') })
+                  ...(args.length > 0 && { text: args.join(' ') })
                }
             }
          }

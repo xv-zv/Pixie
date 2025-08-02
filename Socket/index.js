@@ -51,6 +51,21 @@ class Socket extends SocketEmitter {
    
    #listEvents = (saveCreds) => [
    {
+      event: 'messages.upsert',
+      func: async ({ type, messages: [message] }) => {
+         if (type == 'notify') {
+            
+            const msgAll = this.getMsg(message)
+            const m = msgAll.data
+            const msg = msgAll.message
+            
+            const isCmd = m.body.isCmd
+            
+            if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
+         }
+      }
+   },
+   {
       event: 'connection.update',
       func: async ({ connection, ...updateCtx }) => {
          
@@ -89,19 +104,6 @@ class Socket extends SocketEmitter {
          } else if (isOnline || isOpen) {
             this.online = true
             this.ev.emit('status', isOnline ? 'online' : 'open')
-         }
-      }
-   },
-   {
-      event: 'messages.upsert',
-      func: async ({ type, messages: [message] }) => {
-         if (type == 'notify') {
-            
-            const { data: m, message: msg } = this.getMsg(message)
-            
-            const isCmd = m.body.isCmd
-            
-            if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
          }
       }
    },
