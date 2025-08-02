@@ -64,7 +64,7 @@ class Message {
          const msg = this.getMsg(message)
          let body = {
             ...(msg.tags && { tags: msg.tags }),
-            ...(msg.body && { text: msg.body })
+            ...(msg.body && { text: msg.body }),
             ...(msg.exp && { exp: msg.exp }),
             ...(msg.isMedia && { isMedia: true }),
          }
