@@ -99,13 +99,15 @@ class Message {
          return {
             message: { key, message, ...content },
             data: {
-               ...(from && { from }),
-               ...(body && { body }),
-               ...(media && { media }),
-               ...(quote && { quote })
+               ...(isObj(from) && { from }),
+               ...(isObj(body) && { body }),
+               ...(isObj(media) && { media }),
+               ...(isObj(quote) && { quote })
             }
          }
       }
    }
+   
+   isObj = o => Object.keys(o).length > 0
 }
 module.exports = { Message }
