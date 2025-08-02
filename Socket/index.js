@@ -17,7 +17,7 @@ const {
 } = require('./Utils/utils.js')
 
 class Socket extends SocketEmitter {
-
+   
    constructor(args) {
       super(args)
    }
@@ -27,7 +27,7 @@ class Socket extends SocketEmitter {
       const logger = pino({ level: 'silent' })
       const { state, saveCreds } = await useMultiFileAuthState(this.args.path)
       
-     const sock = await makeWASocket({
+      const sock = await makeWASocket({
          logger,
          auth: {
             creds: state.creds,
@@ -97,11 +97,11 @@ class Socket extends SocketEmitter {
       func: async ({ type, messages: [message] }) => {
          if (type == 'notify') {
             
-            const m = this.getMsg(message)
-            console.log(m)
-          //  const isCmd = m.data.body.isCmd
+            const { data: m, message: msg } = this.getMsg(message)
             
-           // if (isCmd) this.ev.emitCmd(m.data.body.cmd, m.data, this)
+            const isCmd = m.body.isCmd
+            
+            if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
          }
       }
    },

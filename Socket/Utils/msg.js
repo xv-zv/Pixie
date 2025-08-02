@@ -96,13 +96,15 @@ class Message {
          }
          
          return {
-            ...(from && { from }),
-            ...(body && { body }),
-            ...(media && { media }),
-            ...(quote && { quote })
+            message: { key, message, ...content },
+            data: {
+               ...(from && { from }),
+               ...(body && { body }),
+               ...(media && { media }),
+               ...(quote && { quote })
+            }
          }
       }
    }
 }
-
 module.exports = { Message }
