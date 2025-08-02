@@ -47,7 +47,7 @@ class Socket extends SocketEmitter {
       event: 'connection.update',
       func: async ({ connection, ...updateCtx }) => {
          
-         const isNewReg = Boolean(this.sock.authState?.creds?.registered)
+         const isNewReg = !Boolean(this.sock.authState?.creds?.registered)
          const isQrCode = Boolean(updateCtx.qr)
          const isPhone = Boolean(this.args.phone)
          
@@ -84,6 +84,10 @@ class Socket extends SocketEmitter {
             this.ev.emit('status', isOnline ? 'online' : 'open')
          }
       }
+   },
+   {
+      event: 'creds.update',
+      func: saveCreds
    }]
    
    close = () => {
