@@ -2,7 +2,7 @@ const { Socket } = require('./Socket')
 const Utils = require('./Utils')
 
 Object.assign(global,{
-   origin: __dirname
+   origen: __dirname
 })
 
 async function start() {
