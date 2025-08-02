@@ -7,7 +7,8 @@ Object.assign(global,{
 
 async function start() {
    
-   const load = (new Utils.Load()).start()
+   const load = new Utils.Load()
+   load.start()
    Object.assign(global, load.files)
    
    const bot = new Socket({
