@@ -28,7 +28,7 @@ class Message {
       })
    }
    
-   getMsg = (content, m = {}) => {
+   getMsg = (content = {}, m = {}) => {
       m.type = getContentType(content)
       const msg = content[m.type] || {}
       const ctx = msg.contextInfo || {}
@@ -48,7 +48,7 @@ class Message {
       let quote = null
       
       return ({ key, message, ...content }) => {
-         
+         if(!key && !message) return 
          const isGroup = key.remoteJid.endsWith('@g.us')
          const isUser = !key.fromMe && (Boolean(key.participant) || !('status' in content))
          const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.user.name)
