@@ -34,7 +34,7 @@ class Message {
       const ctx = msg.contextInfo || {}
       m.body = msg.text || msg.caption || (typeof msg == 'string' ? msg : '')
       m.isMedia = Boolean(msg.mimetype)
-      m.tags = ctx.mentionedJid.length > 0 ? ctx.mentionedJid : null
+      m.tags = ctx.mentionedJid?.length > 0 ? ctx.mentionedJid : null
       m.exp = ctx.expiration || null
       m.isQuote = Boolean(ctx.quotedMessage)
       m.quote = ctx.quotedMessage || null
