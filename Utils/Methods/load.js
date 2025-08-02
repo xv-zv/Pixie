@@ -1,7 +1,6 @@
 const PATH = require('path');
-const { Funcs: F } = require('./funcs.js');
+const fs = require('fs-extra');
 
-const fs = require('fs-extra')
 class Load {
    constructor(path = 'Message') {
       this.path = PATH.join(origen, path)
