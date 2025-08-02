@@ -12,8 +12,12 @@ async function start() {
       prefix: '/'
    })
    
-   bot.ev.on('code', console.log)
-   bot.ev.on('status', console.log)
+   bot.ev.on('code', code => {
+      console.log('code: '+ code)
+   })
+   bot.ev.on('status', status => {
+      console.log('status: '+ status)
+   })
    
    bot.ev.on('text', (...args) => {
       for (const other of others) {
@@ -22,7 +26,6 @@ async function start() {
    })
    
    bot.start()
-   console.log(bot)
 }
 
 start()
