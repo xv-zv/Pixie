@@ -13,7 +13,7 @@ class Load {
    
    start = (path = this.path) => {
       if (!fs.pathExistsSync(path)) return
-      fs.rddirSync(path, { withFileTypes: true }).forEach(out => {
+      fs.readdirSync(path, { withFileTypes: true }).forEach(out => {
          const file = PATH.join(path, out.name)
          if (out.isDirectory()) {
             this.start(file)
