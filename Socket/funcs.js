@@ -28,7 +28,7 @@ Object.defineProperties(SocketEmiter.prototype, {
    sock: { value: null, writable: true },
    ev: { value: new Events() },
    getMsg: { value: null , writable: true },
-   bot: {
+   user: {
       get(){
          const user = this.sock.user || {}
          return {

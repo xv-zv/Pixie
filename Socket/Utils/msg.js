@@ -49,11 +49,11 @@ class Message {
          
          const isGroup = key.remoteJid.endsWith('@g.us')
          const isUser = !key.fromMe && (Boolean(key.participant) || !('status' in content))
-         const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.bot.name)
+         const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.user.name)
          const isBot = !isUser && content.status == 1
          const from = {
             id: jidNormalizedUser(key.remoteJid),
-            sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.bot.id : key.remoteJid),
+            sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
             name: content.pushName,
             ...(isGroup && { isGroup }),
             ...(isBot && { isBot }),
@@ -71,7 +71,7 @@ class Message {
          
          if (msg.body) {
             
-            const isCmd = this.sock.bot.prefix.some(i => msg.body.startsWith(i))
+            const isCmd = this.sock.user.prefix.some(i => msg.body.startsWith(i))
             
             if (isCmd) {
                const [cmd, ...args] = msg.body.slice(1).trim().split(/ +/)

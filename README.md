@@ -1,1 +1,2 @@
-# Pixie
+# Pixie - Bot 
+this bot simple 
