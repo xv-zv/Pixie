@@ -32,26 +32,52 @@ class Message {
       return Object.assign(download, m)
    }
    
+   getMsg = (content, m = {}) => {
+      m.type = getContentType(content)
+      const msg = content[m.type] || {}
+      m.body = msg.text || msg.caption || typeof msg == 'string' ? msg : ''
+      m.isMedia = Boolean(msg.mimetype)
+      const ctx = msg.contextInfo || {}
+      m.tags = ctx.mentionedJid || []
+      m.exp = ctx.expiration || 0
+      m.isQuote = Boolean(ctx.quotedMessage)
+      m.quote = ctx.quotedMessage || {}
+      return m
+   }
+   
    build() {
       const from = {}
       const body = {}
-      return (message) => {
-         const {
-            remoteJid,
-            participant,
-            fromMe,
-            id
-         } = message.key || {}
-         const isUser = !fromMe && Boolean(participant) && !Boolean(message.status)
-         const isMe = !isUser && (message.status == 2 || message.pushName == this.sock.bot.name )
-         const isBot = !isUser && message.status == 1
-         const isGroup = remoteJid.endsWith('@g.us')
+      const quote = {}
+      const media = {}
+      const ctx = {}
+      
+      return ({ key, message, ...content }) => {
          
-         from.id = jidNormalizedUser(remoteJid)
-         from.sender = jidNormalizedUser(isGroup ? participant : (isMe || isBot) ? this.sock.bot.id : remoteJid)
-         from.name = message.pushName
+         ctx.isUser = !key.fromMe && Boolean(key.participant) && !Boolean(content.status)
+         ctx.isMe = !ctx.isUser && (content.status == 2 || content.pushName == this.sock.bot.name)
+         ctx.isBot = !ctx.isUser && content.status == 1
+         ctx.isGroup = key.remoteJid.endsWith('@g.us')
          
-         return { from }
+         from.id = jidNormalizedUser(key.remoteJid)
+         from.sender = jidNormalizedUser(ctx.isGroup ? key.participant : (ctx.isMe || ctx.isBot) ? this.sock.bot.id : key.remoteJid)
+         from.name = content.pushName
+         
+         const msg = this.getBody(message)
+         ctx.isMedia = msg.isMedia
+         ctx.isQuote = msg.isQuote
+         
+         if (msg.body) {
+            body.text = msg.body
+            ctx.isCmd = this.sock.bot.prefix.some(i => msg.body.startsWith(i))
+            if (ctx.isCmd) {
+               const [cmd, args] = msg.body.slice(1).trim().split(/ +/)
+               body.cmd = cmd
+               body.text = args.join(' ')
+            }
+         }
+         
+         return { from, body, ctx }
       }
    }
 }
