@@ -48,12 +48,12 @@ class Message {
       return ({ key, message, ...content }) => {
          
          const isGroup = key.remoteJid.endsWith('@g.us')
-         const isUser = !key.fromMe && Boolean(key.participant) && !content.status
+         const isUser = !key.fromMe && (Boolean(key.participant) || !('status' in content))
          const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.bot.name)
          const isBot = !isUser && content.status == 1
          const from = {
             id: jidNormalizedUser(key.remoteJid),
-            sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
+            sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.bot.id : key.remoteJid),
             name: content.pushName,
             ...(isGroup && { isGroup }),
             ...(isBot && { isBot }),
