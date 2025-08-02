@@ -9,6 +9,7 @@ const {
 const pino = require('pino');
 const fs = require('fs-extra');
 const SocketEmitter = require('./funcs.js');
+const { Message } = require('./Utils/class.js');
 
 const {
    DELETE_SESSION_REASONS,
@@ -33,6 +34,8 @@ class Socket extends SocketEmitter {
          },
          browser: Browsers.ubuntu('Chrome')
       })
+      
+      this.getMsg = new Message(this)
       
       const events = this.#listEvents(saveCreds)
       
@@ -82,6 +85,19 @@ class Socket extends SocketEmitter {
          } else if (isOnline || isOpen) {
             this.online = true
             this.ev.emit('status', isOnline ? 'online' : 'open')
+         }
+      }
+   },
+   {
+      event: 'messages.upsert',
+      func: async ({ type, messages: [message] }) => {
+         if (type == 'notify') {
+            
+            const m = this.getMsg(message)
+            
+            const isCmd = m.data.body.isCmd
+            
+            if (isCmd) this.ev.emitCmd(m.data.body.cmd, m.data, this)
          }
       }
    },

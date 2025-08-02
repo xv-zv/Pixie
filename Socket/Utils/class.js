@@ -2,43 +2,17 @@ const {
    getContentType,
    downloadContentFromMessage
 } = require('@whiskeysockets/baileys');
- 
+
 class Message {
-   #sock = {}
-   #args = {}
-   constructor(sock, args) {
-      this.#sock = sock
-      this.#args = args
+   constructor(bot) {
+      this.bot = bot
+      return this.build()
    }
    
-   getFrom = (key, status, m = {}) => {
-      
-      m.from = key.remoteJid
-      m.sender = m.key.participant
-      m.isGroup = from.endsWith('@g.us')
-      m.isBot = key.fromMe && status == 1
-      m.isMe = key.fromMe && status == 2
-      
-      if (!m.sender && !m.isGroup && (m.isBot || m.isMe)) m.sender = bot.id
-      return m
-   }
-   
-   getMsg = (message , m = {}) => {
-      
-   }
-   
-   getCtx = (message) => {
-   
-      const msgType = getContentType(message)
-      
-      const getMsg = (content, type) => {
-         
-         const body = type == 'conversation' ? msg : type == 'extendedTextMessage' ? msg.text : ['video', 'image', 'document'].some(i => type.startsWith(i)) ? msg.caption : ''
-         
-         const isMedia = Boolean(msg.mimetype)
+   build() {
+      return (message) => {
+         console.log(this,message)
       }
-      
-      
    }
 }
 
@@ -80,4 +54,4 @@ class Events {
 }
 
 
-module.exports = { Events }
+module.exports = { Events , Message }

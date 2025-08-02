@@ -1,4 +1,4 @@
-const { Events } = require('./Utils/class.js')
+const { Events  } = require('./Utils/class.js')
 
 class SocketEmiter {
    constructor(args) {
@@ -26,6 +26,18 @@ class SocketEmiter {
 Object.defineProperties(SocketEmiter.prototype, {
    sock: { value: null, writable: true },
    ev: { value: new Events() },
+   getMsg: { value: null , writable: true },
+   bot: {
+      get(){
+         const user = this.sock.user || {}
+         return {
+            id: user.id?.replace(/:d+/,'') || null,
+            lid: user.lid?.replace(/:\d+/,'') || null,
+            name: user.name || 'annonymous',
+            prefix: this.args.prefix
+         }
+      }
+   }
 })
 
 module.exports = SocketEmiter
