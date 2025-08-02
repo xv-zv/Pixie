@@ -79,7 +79,7 @@ class Message {
                   ...body,
                   isCmd: true,
                   ...(cmd && { cmd }),
-                  ...(args.length > 0 && { text: args.join(' ') })
+                  ...(args && { text: args.join(' ').trim() })
                }
             }
          }
