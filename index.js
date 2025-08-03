@@ -15,6 +15,7 @@ async function start() {
    const load = new Utils.Load()
    load.start()
    Object.assign(global, load.files)
+   
    const args = await Utils.Initation()
    
    const bot = new Socket({
