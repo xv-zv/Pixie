@@ -6,7 +6,8 @@ class SocketEmiter {
       this.args = {
          path: args.path || 'Sesion',
          phone: args.phone?.replace(/\D/g,''),
-         prefix: Array.isArray(args.prefix) ? args.prefix : [args.prefix || '/']
+         prefix: Array.isArray(args.prefix) ? args.prefix : [args.prefix || '/'],
+         ...(args.newLogin && { newLogin: true })
       }
       this.online = false
    }
