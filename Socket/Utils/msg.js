@@ -7,6 +7,13 @@ const {
 class Message {
    constructor(sock) {
       this.sock = sock
+      this.owners = (sock.args.owners || []).reduce((acc, { id, lid }) => {
+         id = id.replace(/\D/,'') + '@s.whatsapp.net'
+         lid = lid.replace(/\D/,'') + '@lid'
+         acc.push(id, lid)
+         return acc
+      }, [])
+      this.bot = sock.user 
       return this.build()
    }
    
@@ -48,22 +55,29 @@ class Message {
       let quote = null
       
       return ({ key, message, ...content }) => {
-         if(!key && !message) return 
-         const isGroup = key.remoteJid.endsWith('@g.us')
-         const isUser = !key.fromMe && (Boolean(key.participant) || !('status' in content))
-         const isMe = !isUser && content.status == 2 && (content.pushName == this.sock.user.name)
-         const isBot = !isUser && content.status == 1
+         if (!key && !message) return
          
-         const from = {
-            id: jidNormalizedUser(key.remoteJid),
-            sender: jidNormalizedUser(isGroup ? key.participant : (isMe || isBot) ? this.sock.user.id : key.remoteJid),
-            name: content.pushName,
-            ...(isGroup && { isGroup }),
-            ...(isBot && { isBot }),
-            ...(isMe && { isMe }),
-            ...(isUser && { isUser }),
-            ...(content.broadcast && { isBc: true })
-         }
+         const id = key.remoteJid
+         const user = key.participant
+         const name = content.pushName
+         
+         const isGroup = id.endsWith('@g.us')
+         const isUser = !key.fromMe && (Boolean(user) || !('status' in content))
+         const isMe = !isUser && content.status == 2 && (name == this.bot.name)
+         const isBot = !isUser && content.status == 1
+         const sender = jidNormalizedUser(isGroup ? user : (isMe || isBot) ? this.bot.id : id)
+         const isOwner = this.owners.includes(sender)
+            const from = {
+               id: jidNormalizedUser(id),
+               ...(sender && { sender }),
+               ...(name && { name }),
+               ...(isGroup && { isGroup }),
+               ...(isBot && { isBot }),
+               ...(isMe && { isMe }),
+               ...(isUser && { isUser }),
+               ...(isOwner && { isOwner }),
+               ...(content.broadcast && { isBc: true })
+            }
          
          const msg = this.getMsg(message)
          let body = {

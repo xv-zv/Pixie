@@ -1,3 +1,4 @@
 module.exports = {
-   ...require('./Methods/load.js')
+   ...require('./Methods/load.js'),
+   ...require('./Initation')
 }
