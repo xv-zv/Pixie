@@ -30,7 +30,7 @@ Object.defineProperties(SocketEmiter.prototype, {
    getMsg: { value: null , writable: true },
    user: {
       get(){
-         const user = this.sock.user || {}
+         const user = this.sock?.user || {}
          return {
             id: user.id?.replace(/:\d+/,'') || null,
             lid: user.lid?.replace(/:\d+/,'') || null,
