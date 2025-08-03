@@ -1,10 +1,8 @@
 const { Socket } = require('./Socket')
 const Utils = require('./Utils')
 
-
-
 //global assign
-global.F = Utils.Funcs()
+global.F = Utils.Funcs
 Object.assign(global, {
    origen: __dirname,
    core: F.rdJsnSync('./Socket/config.json'),
