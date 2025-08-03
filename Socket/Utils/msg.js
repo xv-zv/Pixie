@@ -90,7 +90,7 @@ class Message {
          
          if (msg.body) {
             
-            const isCmd = this.sock.user.prefix.some(i => msg.body.startsWith(i))
+            const isCmd = this.bot.prefix.some(i => msg.body.startsWith(i))
             
             if (isCmd) {
                const [cmd, ...args] = msg.body.slice(1).trim().split(/ +/)
