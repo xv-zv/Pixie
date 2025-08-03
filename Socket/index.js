@@ -37,7 +37,7 @@ class Socket extends SocketEmitter {
       })
       
       Object.defineProperties(this, {
-         sock: { value: sock },
+         sock: { value: sock , writable: true },
          getMsg: { value: new Message(this) },
       })
       
@@ -72,7 +72,8 @@ class Socket extends SocketEmitter {
       event: 'connection.update',
       func: async ({ connection, ...updateCtx }) => {
          
-         const isNewReg = !Boolean(this.sock.authState?.creds?.registered)
+         const isNewReg= !Boolean(this.sock.authState?.creds?.registered) && this.args.newLogin
+         
          const isQrCode = Boolean(updateCtx.qr)
          const isPhone = Boolean(this.args.phone)
          

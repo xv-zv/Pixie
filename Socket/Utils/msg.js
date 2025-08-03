@@ -52,8 +52,6 @@ class Message {
    
    build() {
       
-      let quote = null
-      
       return ({ key, message, ...content }) => {
          if (!key && !message) return
          
@@ -104,7 +102,7 @@ class Message {
          }
          
          const media = msg.isMedia ? this.getMedia(message[msg.type], msg.type) : null
-         
+         let quote = {}
          if (msg.isQuote) {
             const msgQuote = this.getMsg(msg.quote)
             const mediaQuote = msgQuote.isMedia ? this.getMedia(msg.quote[msgQuote.type], msgQuote.type) : null
