@@ -39,7 +39,7 @@ class Socket extends Methods {
    listEvents = (saveCreds) => [
    {
       event: 'connection.update',
-      async func({ connection, ...update }) {
+      func: async ({ connection, ...update }) => {
          
          if (!this.sock.authState?.creds?.registered && Boolean(update.qr) && Boolean(this.args.phone)) {
             const code = await this.sock.requestPairingCode(this.args.phone)
