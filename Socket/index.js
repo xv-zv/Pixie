@@ -54,29 +54,27 @@ class Socket extends Utils.Methods {
          
          const isOnline = Boolean(update?.receivedPendingNotifications)
          const isOpen = connection == 'open'
+         const isClose = connection == 'close'
          
-         if (connection == 'close') {
+         if (isClose) {
             
             const statusCode = update.lastDisconnect.error?.output?.statusCode
             
-            if ([DisconnectReason.connectionReplaced,
-                  DisconnectReason.loggedOut,
-                  DisconnectReason.badSession
-               ].includes(statusCode)) {
+            const isDelete = [DisconnectReason.connectionReplaced,
+               DisconnectReason.loggedOut,
+               DisconnectReason.badSession
+            ].includes(statusCode)
+            
+            this.close()
+            
+            if (isDelete) {
                fs.removeSync(this.args.path)
-               this.close()
                this.off('status', 'delete')
+               return
             }
             
-            if ([DisconnectReason.connectionClosed,
-                  DisconnectReason.connectionLost,
-                  DisconnectReason.timedOut,
-                  DisconnectReason.restartRequired
-               ].includes(statusCode)) {
-               this.close()
-               this.emit('status', 'retry')
-               setTimeout(this.start, 4500)
-            }
+            this.emit('status', 'retry')
+            setTimeout(this.start, 4500)
             
          } else if (isOnline || isOpen) {
             this.online = true
