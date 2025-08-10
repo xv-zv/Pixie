@@ -2,6 +2,7 @@ const Events = require('./events.js');
 
 class Methods extends Events {
    constructor(){
+      super()
       this.sock = null
       this.online = false
    }
