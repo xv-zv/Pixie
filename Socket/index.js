@@ -18,7 +18,7 @@ class Socket extends Utils.Methods {
       this.online = false
    }
    
-   async start(args) {
+   start = async () => {
       
       const logger = pino({ level: 'silent' })
       const { state, saveCreds } = await useMultiFileAuthState(args.path)
@@ -36,19 +36,16 @@ class Socket extends Utils.Methods {
          }
       })
       
-      const events = this.#listEvents(saveCreds)
-      
-      events.forEach(({ event, func }) => this.sock.ev.on(event, func))
+      const events = this.listEvents(saveCreds)
+      for (const { event, func } of events) {
+         this.sock.ev.on(event, func)
+      }
    }
    
-   #listEvents = (saveCreds) => [
-   {
-      event: 'creds.update',
-      func: saveCreds
-   },
+   listEvents = (saveCreds) => [
    {
       event: 'connection.update',
-      func({ connection, ...update }) {
+      func: ({ connection, ...update }) => {
          
          if (!this.sock.authState?.creds?.registered && Boolean(update.qr) && Boolean(this.args.phone)) {
             const code = await this.sock.requestPairingCode(this.args.phone)
@@ -80,15 +77,24 @@ class Socket extends Utils.Methods {
                this.emit('status', 'retry')
                setTimeout(this.start, 4500)
             }
+            
          } else if (isOnline || isOpen) {
+            this.online = true
             this.emit('status', isOnline ? 'online' : 'open')
          }
       }
+   },
+   {
+      event: 'creds.update',
+      func: saveCreds
    }]
    
-   close() {
+   close = () => {
       if (!this.sock) return
-      if (this.online) this.sock.ws.close()
+      if (this.online) {
+         this.online = false
+         this.sock.ws.close()
+      }
       this.sock.ws.removeAllListeners()
       this.sock = null
    }
