@@ -5,23 +5,21 @@ const {
    Browsers,
    useMultiFileAuthState
 } = require('@whiskeysockets/bailyes');
-const Utils = require('./Utils');
+const { Methods, ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
 
-class Socket extends Utils.Methods {
+class Socket extends Methods {
    
    constructor(args) {
       super()
-      this.sock = null
       this.args = args
-      this.online = false
    }
    
    start = async () => {
       
       const logger = pino({ level: 'silent' })
-      const { state, saveCreds } = await useMultiFileAuthState(args.path)
+      const { state, saveCreds } = await useMultiFileAuthState(this.args.path)
       
       this.sock = await makeWASocket({
          logger,
@@ -29,11 +27,7 @@ class Socket extends Utils.Methods {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, logger)
          },
-         browser: Browsers.ubuntu('Chrome'),
-         shouldIgnoreJid: (id) => {
-            const ids = Array.isArray(args.ignore) ? args.ignore : [args.ignore].filter(Boolean)
-            return ids.includes(id)
-         }
+         browser: Browsers.ubuntu('Chrome')
       })
       
       const events = this.listEvents(saveCreds)
@@ -86,15 +80,4 @@ class Socket extends Utils.Methods {
       event: 'creds.update',
       func: saveCreds
    }]
-   
-   close = () => {
-      if (!this.sock) return
-      if (this.online) {
-         this.online = false
-         this.sock.ws.close()
-      }
-      this.sock.ws.removeAllListeners()
-      this.sock = null
-   }
-   
 }
