@@ -4,7 +4,7 @@ const {
    DisconnectReason,
    Browsers,
    useMultiFileAuthState
-} = require('@whiskeysockets/bailyes');
+} = require('@whiskeysockets/baileys');
 const { Methods, ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
