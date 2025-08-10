@@ -1,127 +1,96 @@
 const {
+   makeCacheableSignalKeyStore,
    makeWASocket,
-   useMultiFileAuthState,
-   Browsers,
    DisconnectReason,
-   makeCacheableSignalKeyStore
-} = require('@whiskeysockets/baileys')
-
-const pino = require('pino');
+   Browsers,
+   useMultiFileAuthState
+} = require('@whiskeysockets/bailyes');
+const Utils = require('./Utils');
 const fs = require('fs-extra');
-const SocketEmitter = require('./main.js');
-const { Message } = require('./Utils/msg.js');
+const pino = require('pino');
 
-const {
-   DELETE_SESSION_REASONS,
-   RETRY_REASONS
-} = require('./Utils/utils.js')
-
-class Socket extends SocketEmitter {
+class Socket extends Utils.Methods {
    
    constructor(args) {
-      super(args)
+      super()
+      this.sock = null
+      this.args = args
+      this.online = false
    }
    
-   start = async () => {
+   async start(args) {
       
       const logger = pino({ level: 'silent' })
-      const { state, saveCreds } = await useMultiFileAuthState(this.args.path)
+      const { state, saveCreds } = await useMultiFileAuthState(args.path)
       
-      const sock = await makeWASocket({
+      this.sock = await makeWASocket({
          logger,
          auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, logger)
          },
-         browser: Browsers.ubuntu('Chrome')
-      })
-      
-      Object.defineProperties(this, {
-         sock: { value: sock , writable: true },
-         getMsg: { value: new Message(this) },
+         browser: Browsers.ubuntu('Chrome'),
+         shouldIgnoreJid: (id) => {
+            const ids = Array.isArray(args.ignore) ? args.ignore : [args.ignore].filter(Boolean)
+            return ids.includes(id)
+         }
       })
       
       const events = this.#listEvents(saveCreds)
       
-      events.forEach(({ func, event }) => {
-         this.sock.ev.on(event, func)
-      })
-      
+      events.forEach(({ event, func }) => this.sock.ev.on(event, func))
    }
    
    #listEvents = (saveCreds) => [
    {
-      event: 'messages.upsert',
-      func: async ({ type, messages: [message] }) => {
-         if (type == 'notify') {
-            
-            const msgAll = this.getMsg(message)
-            const m = msgAll.data
-            const msg = msgAll.message
-            
-            const isCmd = m.body?.isCmd
-            const isMedia = m.body?.isMedia
-            
-            if (isCmd) this.ev.emitCmd(m.body.cmd, m, msg)
-            if (isMedia) this.ev.emit('media', m, msg)
-            if (!isCmd && !isMedia) this.ev.emit('text', m, msg)
-         }
-      }
+      event: 'creds.update',
+      func: saveCreds
    },
    {
       event: 'connection.update',
-      func: async ({ connection, ...updateCtx }) => {
+      func({ connection, ...update }) {
          
-         const isNewReg= !Boolean(this.sock.authState?.creds?.registered) && this.args.newLogin
-         
-         const isQrCode = Boolean(updateCtx.qr)
-         const isPhone = Boolean(this.args.phone)
-         
-         if (isNewReg && isQrCode) {
-            if (isPhone) {
-               const code = await this.sock.requestPairingCode(this.args.phone)
-               this.ev.off('code', code)
-            }
+         if (!this.sock.authState?.creds?.registered && Boolean(update.qr) && Boolean(this.args.phone)) {
+            const code = await this.sock.requestPairingCode(this.args.phone)
+            this.off('code', code)
          }
          
-         const isClose = connection == 'close'
+         const isOnline = Boolean(update?.receivedPendingNotifications)
          const isOpen = connection == 'open'
-         const isOnline = Boolean(updateCtx?.receivedPendingNotifications)
          
-         if (isClose) {
+         if (connection == 'close') {
             
-            const statusCode = updateCtx.lastDisconnect.error?.output?.statusCode
+            const statusCode = update.lastDisconnect.error?.output?.statusCode
             
-            const isDelete = DELETE_SESSION_REASONS.includes(statusCode)
-            const isRetry = RETRY_REASONS.includes(statusCode)
-            
-            if (isDelete) {
+            if ([DisconnectReason.connectionReplaced,
+                  DisconnectReason.loggedOut,
+                  DisconnectReason.badSession
+               ].includes(statusCode)) {
                fs.removeSync(this.args.path)
                this.close()
-               return this.ev.emit('status', 'delete')
+               this.off('status', 'delete')
             }
-            if (isRetry) {
+            
+            if ([DisconnectReason.connectionClosed,
+                  DisconnectReason.connectionLost,
+                  DisconnectReason.timedOut,
+                  DisconnectReason.restartRequired
+               ].includes(statusCode)) {
                this.close()
-               this.ev.emit('status', 'retry')
-               this.start()
+               this.emit('status', 'retry')
+               setTimeout(this.start, 4500)
             }
          } else if (isOnline || isOpen) {
-            this.online = true
-            this.ev.emit('status', isOnline ? 'online' : 'open')
+            this.emit('status', isOnline ? 'online' : 'open')
          }
       }
-   },
-   {
-      event: 'creds.update',
-      func: saveCreds
    }]
    
-   close = () => {
+   close() {
       if (!this.sock) return
-      if (!this.online) this.sock.ws.close()
+      if (this.online) this.sock.ws.close()
       this.sock.ws.removeAllListeners()
       this.sock = null
    }
+   
 }
-
-module.exports = { Socket }
