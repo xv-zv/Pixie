@@ -81,3 +81,5 @@ class Socket extends Methods {
       func: saveCreds
    }]
 }
+
+module.exports = Socket
