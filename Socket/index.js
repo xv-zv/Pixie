@@ -5,11 +5,11 @@ const {
    Browsers,
    useMultiFileAuthState
 } = require('@whiskeysockets/baileys');
-const { Methods, ...Utils } = require('./Utils');
+const { Events , ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
 
-class Socket {
+class Socket extends Events {
    
    constructor(args) {
       super()
@@ -30,7 +30,7 @@ class Socket {
          browser: Browsers.ubuntu('Chrome')
       })
       
-      Object.assign(this, (new Methods(sock)))
+      Object.assign(this, (new Utils.Methods(sock)))
       this.#listEvents(sock, saveCreds).forEach(i => sock.ev.on(i.event, i.func))
    }
    

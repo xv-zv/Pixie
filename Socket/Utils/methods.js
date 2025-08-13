@@ -1,10 +1,8 @@
-const { Events } = require('./events.js');
 const { jidNormalizedUser } = require('@whiskeysockets/baileys')
 
-class Methods extends Events {
+class Methods {
    #sock
-   constructor() {
-      super(sock)
+   constructor(sock){
       this.#sock = sock
       this.online = false
    }
