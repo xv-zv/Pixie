@@ -2,6 +2,7 @@ const {
    jidNormalizedUser,
    getContentType,
    isLidUser,
+   getDevice,
    isJidGroup
 } = require('@whiskeysockets/baileys')
 
