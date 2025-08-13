@@ -1,4 +1,4 @@
 module.exports = {
    ...require('./methods.js'),
-   ...require('.events.js')
+   ...require('./events.js')
 }
