@@ -2,9 +2,11 @@ const {
    makeCacheableSignalKeyStore,
    makeWASocket,
    DisconnectReason,
+   isRealMessage,
    Browsers,
    useMultiFileAuthState
 } = require('@whiskeysockets/baileys');
+
 const { Events, ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
@@ -38,7 +40,9 @@ class Socket extends Events {
    {
       event: 'messages.upsert',
       func: async ({ type, messages: [message] }) => {
-         if(!this.online) return 
+         
+         if (!this.online || !isRealMessage(message, message.key.id)) return
+         
          const m = await Utils.sms(sock, message)
       }
    },
