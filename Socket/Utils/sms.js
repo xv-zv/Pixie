@@ -34,5 +34,9 @@ exports.sms = async (sock, ctx, m = {}) => {
       ...(isMe && { isMe })
    }
    
-   return m
+   const type = getContentType(ctx.message)
+   const msg = ctx.message[type]
+   const body = (typeof msg === 'string') ? msg : msg.caption || msg.text || ''
+   
+   return { m , body }
 }
