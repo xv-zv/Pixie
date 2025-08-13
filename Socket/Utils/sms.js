@@ -41,7 +41,6 @@ exports.sms = async (sock, ctx, m = {}) => {
    if (body) {
       
       const isCmd = body.startsWith('/')
-      m.text = body
       
       if (isCmd) {
          
@@ -52,9 +51,26 @@ exports.sms = async (sock, ctx, m = {}) => {
             ...m,
             prefix: '/',
             ...(cmd && { command: cmd }),
-            ...(text && { text })
+            ...(text ? { text } : { text: body })
          }
       }
    }
-   return m
+   
+   const info = msg.contextInfo
+   
+   if (info) {
+      
+      const mentions = info.mentionedJid
+      const expiration = info.expiration
+      const quote = info.quotedMessage
+      
+      if (quote) {
+         
+         const quoted = {
+            from
+         }
+         
+      }
+   }
+   return { m , info }
 }
