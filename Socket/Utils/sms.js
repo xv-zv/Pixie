@@ -38,5 +38,23 @@ exports.sms = async (sock, ctx, m = {}) => {
    const msg = ctx.message[type]
    const body = (typeof msg === 'string') ? msg : msg.caption || msg.text || ''
    
-   return { m , body }
+   if (body) {
+      
+      const isCmd = body.startsWith('/')
+      m.text = body
+      
+      if (isCmd) {
+         
+         const [cmd, ...args] = body.slice(1).trim().split(/ +/)
+         const text = args.join(' ')
+         
+         m = {
+            ...m,
+            prefix: '/',
+            ...(cmd && { command: cmd }),
+            ...(text && { text })
+         }
+      }
+   }
+   return m
 }
