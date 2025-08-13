@@ -69,7 +69,7 @@ class Socket extends Events {
             setTimeout(this.start, 4500)
             
          } else if (isOnline || isOpen) {
-            this.online = true
+            if(isOnline) this.online = true
             this.emit('status', isOnline ? 'online' : 'open')
          }
       }
