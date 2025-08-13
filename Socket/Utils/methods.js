@@ -1,17 +1,28 @@
 const { Events } = require('./events.js');
+const { jidNormalizedUser } = require('@whiskeysockets/baileys')
 
 class Methods extends Events {
+   #sock
    constructor() {
-      super()
-      this.sock = null
+      super(sock)
+      this.#sock = sock
       this.online = false
    }
    
+   get user (){
+      const user = this.#sock?.user || {}
+      return {
+         id: jidNormalizedUser(user.id),
+         lid: jidNormalizedUser(user.lid),
+         name: user.name || 'annonymous'
+      }
+   }
+
    close = () => {
-      if (!this.sock) return
-      if (this.online) this.sock.ws.close()
+      if (!this.#sock) return
+      if (this.online) this.#sock.ws.close()
       this.online = false
-      this.sock = null
+      this.#sock = null
    }
    
 }

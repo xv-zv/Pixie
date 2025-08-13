@@ -9,7 +9,7 @@ const { Methods, ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
 
-class Socket extends Methods {
+class Socket {
    
    constructor(args) {
       super()
@@ -21,7 +21,7 @@ class Socket extends Methods {
       const logger = pino({ level: 'silent' })
       const { state, saveCreds } = await useMultiFileAuthState(this.args.path)
       
-      this.sock = await makeWASocket({
+      const sock = await makeWASocket({
          logger,
          auth: {
             creds: state.creds,
@@ -30,19 +30,17 @@ class Socket extends Methods {
          browser: Browsers.ubuntu('Chrome')
       })
       
-      const events = this.listEvents(saveCreds)
-      for (const { event, func } of events) {
-         this.sock.ev.on(event, func)
-      }
+      Object.assign(this, (new Methods(sock)))
+      this.#listEvents(sock, saveCreds).forEach(i => sock.ev.on(i.event, i.func))
    }
    
-   listEvents = (saveCreds) => [
+   #listEvents = (sock , saveCreds) => [
    {
       event: 'connection.update',
       func: async ({ connection, ...update }) => {
          
-         if (!this.sock.authState?.creds?.registered && Boolean(update.qr) && Boolean(this.args.phone)) {
-            const code = await this.sock.requestPairingCode(this.args.phone)
+         if (!sock.authState?.creds?.registered && Boolean(update.qr) && Boolean(this.args.phone)) {
+            const code = await sock.requestPairingCode(this.args.phone)
             this.off('code', code)
          }
          
