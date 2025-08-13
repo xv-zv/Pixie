@@ -39,7 +39,7 @@ class Socket extends Events {
       event: 'messages.upsert',
       func: async ({ type, messages: [message] }) => {
          if(!this.online) return 
-         const m = await Utils.sms(sock, msg)
+         const m = await Utils.sms(sock, message)
       }
    },
    {
