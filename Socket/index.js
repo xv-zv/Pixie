@@ -5,7 +5,7 @@ const {
    Browsers,
    useMultiFileAuthState
 } = require('@whiskeysockets/baileys');
-const { Events , ...Utils } = require('./Utils');
+const { Events, ...Utils } = require('./Utils');
 const fs = require('fs-extra');
 const pino = require('pino');
 
@@ -34,7 +34,14 @@ class Socket extends Events {
       this.#listEvents(sock, saveCreds).forEach(i => sock.ev.on(i.event, i.func))
    }
    
-   #listEvents = (sock , saveCreds) => [
+   #listEvents = (sock, saveCreds) => [
+   {
+      event: 'messages.upsert',
+      func: async ({ type, messages: [message] }) => {
+         if(!this.online) return 
+         const m = await Utils.sms(sock, msg)
+      }
+   },
    {
       event: 'connection.update',
       func: async ({ connection, ...update }) => {
@@ -69,7 +76,7 @@ class Socket extends Events {
             setTimeout(this.start, 4500)
             
          } else if (isOnline || isOpen) {
-            if(isOnline) this.online = true
+            if (isOnline) this.online = true
             this.emit('status', isOnline ? 'online' : 'open')
          }
       }
