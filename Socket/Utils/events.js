@@ -1,10 +1,7 @@
 class Events {
-   
-   constructor() {
-      this.#events = {}
-      this.#commands = {}
-   }
-   
+   #events = {}
+   #commands = {}
+
    on = (event, listener) => {
       if (this.#events[event]) return
       this.#events[event] = listener
