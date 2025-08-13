@@ -16,15 +16,23 @@ exports.sms = async (sock, ctx, m = {}) => {
    }
    
    m.from = ctx.key.remoteJid
-   m.isGroup = isJidGroup(m.from)
    
-   m.isBot = ctx.key.fromMe && dv() == 'web'
-   m.isMe = ctx.key.fromMe && !m.isBot
+   const isGroup = isJidGroup(m.from)
+   const isBot = ctx.key.fromMe && dv() == 'web'
+   const isMe = ctx.key.fromMe && !isBot
    const user = ctx.key.participant || m.from
-   m.isUser = !m.isBot && !m.isMe
-   m.isLid = isLidUser(user)
+   const isUser = !isBot && !isMe
+   const isLid = isLidUser(user)
    
-   m.chat = jidNormalizedUser(m.isGroup ? user : !m.isUser ? (m.isLid ? bot.lid : bot.id) : user)
+   m.chat = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? bot.lid : bot.id) : user)
+   
+   m = {
+      ...m,
+      ...(isGroup && { isGroup }),
+      ...(isUser && { isUser }),
+      ...(isBot && { isBot }),
+      ...(isMe && { isMe })
+   }
    
    return m
 }
