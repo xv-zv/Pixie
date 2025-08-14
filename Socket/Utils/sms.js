@@ -8,8 +8,9 @@ const {
    isJidGroup
 } = require('@whiskeysockets/baileys')
 
-exports.sms = async (sock, ctx, m = {}) => {
+exports.sms = async (sock, ctx, q) => {
    
+   const m = {}
    const dv = () => getDevice(ctx.key.id)
    const bot = {
       id: jidNormalizedUser(sock.user?.id),
@@ -108,12 +109,12 @@ exports.sms = async (sock, ctx, m = {}) => {
                message: quoted
             }
             
-            m.quote = await exports.sms(sock, quote)
+            m.quote = await exports.sms(sock, quote, true)
          }
       }
    }
    
-   if (isGroup) {
+   if (isGroup && !q) {
       
       const data = await sock.groupMetadata(m.from)
       const users = data.participants.map(i => i.id)
