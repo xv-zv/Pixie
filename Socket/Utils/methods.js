@@ -65,7 +65,7 @@ class Methods {
    }
    
    sendFile = async (id, media, opc = {}) => {
-      const { ext, mime } = await this.fileType(media)
+      const { ext, mime } = await this.getFileType(media)
       return this.sendMessage(id, {
          document: nmMedia(media),
          caption: nmDesc(opc),
