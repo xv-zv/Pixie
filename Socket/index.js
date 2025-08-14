@@ -43,7 +43,7 @@ class Socket extends Events {
          
          if (!this.online || !isRealMessage(message, message.key.id)) return
          
-         const m = await Utils.sms(sock, message)
+         const m = await Utils.sms({ ...this, ...sock }, message)
       }
    },
    {

@@ -116,12 +116,9 @@ exports.sms = async (sock, ctx, q) => {
    
    if (isGroup && !q) {
       
-      const data = await sock.groupMetadata(m.from)
-      const users = data.participants.map(i => i.id)
-      const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
-      const isAdmin = admins.includes(m.sender)
-      const isBotAdmin = admins.includes(isLid ? bot.lid : bot.id)
-      const exp = data.ephemeralDuration
+      const data = await sock.getMetadata(m.from)
+      const isAdmin = data.admins.includes(m.sender)
+      const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
       
       m = {
          ...m,
@@ -130,18 +127,7 @@ exports.sms = async (sock, ctx, q) => {
          ...(isBotAdmin && { isBotAdmin })
       }
       
-      m.group = () => ({
-         id: m.from,
-         name: data.subject,
-         open: data.announce,
-         size: data.size,
-         owner: data.owner,
-         ...(exp && { expiration: exp }),
-         isCommunity: data.isCommunity,
-         admins,
-         users,
-         desc: data.desc
-      })
+      m.group = () => data
    }
    
    return m
