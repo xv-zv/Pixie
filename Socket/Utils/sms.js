@@ -121,7 +121,7 @@ exports.sms = async (sock, ctx, m = {}) => {
          const exp = data.ephemeralDuration
          
          m.isGroup = true
-         m.group = {
+         m.group = () => ({
             id: m.from,
             name: data.subject,
             open: data.announce,
@@ -134,7 +134,7 @@ exports.sms = async (sock, ctx, m = {}) => {
             admins,
             users,
             desc: data.desc
-         }
+         })
       }
    }
    
