@@ -81,7 +81,6 @@ exports.sms = async (sock, ctx, m = {}) => {
             ...(msg.duration && { duration: msg.duration }),
             media
          }
-         
       }
       
       const info = msg.contextInfo
@@ -91,7 +90,7 @@ exports.sms = async (sock, ctx, m = {}) => {
          m = {
             ...m,
             ...(info.mentionedJid.length > 0 && { mentions: info.mentionedJid }),
-            ...(into.expiration && { expiration: info.expiration })
+            ...(info.expiration && { expiration: info.expiration })
          }
          
          const quoted = info.quotedMessage
