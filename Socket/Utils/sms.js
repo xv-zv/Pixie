@@ -111,37 +111,36 @@ exports.sms = async (sock, ctx, m = {}) => {
             m.quote = await exports.sms(sock, quote)
          }
       }
+   }
+   
+   if (isGroup) {
       
-      if (isGroup) {
-         
-         const data = await sock.groupMetadata(m.from)
-         const users = data.participants.map(i => i.id)
-         const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
-         const isAdmin = admins.includes(m.sender)
-         const isBotAdmin = admins.includes(isLid ? bot.lid : bot.id)
-         const exp = data.ephemeralDuration
-         
-         
-         m = {
-            ...m,
-            isGroup: true,
-            ...(isAdmin && { isSenderAdmin: true }),
-            ...(isBotAdmin && { isBotAdmin })
-         }
-         
-         m.group = () => ({
-            id: m.from,
-            name: data.subject,
-            open: data.announce,
-            size: data.size,
-            owner: data.owner,
-            ...(exp && { expiration: exp }),
-            isCommunity: data.isCommunity,
-            admins,
-            users,
-            desc: data.desc
-         })
+      const data = await sock.groupMetadata(m.from)
+      const users = data.participants.map(i => i.id)
+      const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
+      const isAdmin = admins.includes(m.sender)
+      const isBotAdmin = admins.includes(isLid ? bot.lid : bot.id)
+      const exp = data.ephemeralDuration
+      
+      m = {
+         ...m,
+         isGroup: true,
+         ...(isAdmin && { isSenderAdmin: true }),
+         ...(isBotAdmin && { isBotAdmin })
       }
+      
+      m.group = () => ({
+         id: m.from,
+         name: data.subject,
+         open: data.announce,
+         size: data.size,
+         owner: data.owner,
+         ...(exp && { expiration: exp }),
+         isCommunity: data.isCommunity,
+         admins,
+         users,
+         desc: data.desc
+      })
    }
    
    return m
