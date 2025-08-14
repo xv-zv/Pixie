@@ -47,7 +47,7 @@ exports.sms = async (sock, ctx, q) => {
       
       const isCmd = body.startsWith('/')
       
-      if (isCmd) {
+      if (isCmd && !q) {
          
          const [cmd, ...args] = body.slice(1).trim().split(/ +/)
          const text = args.join(' ')
