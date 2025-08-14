@@ -27,11 +27,10 @@ exports.sms = async (sock, ctx, m = {}) => {
    const isUser = !isBot && !isMe
    const isLid = isLidUser(user)
    
-   m.chat = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? bot.lid : bot.id) : user)
+   m.sender = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? bot.lid : bot.id) : user)
    
    m = {
       ...m,
-      ...(isGroup && { isGroup }),
       ...(isUser && { isUser }),
       ...(isBot && { isBot }),
       ...(isMe && { isMe }),
@@ -55,7 +54,12 @@ exports.sms = async (sock, ctx, m = {}) => {
             ...m,
             prefix: '/',
             ...(cmd && { command: cmd }),
-            ...(text ? { text } : { text: body })
+            ...(text && { text })
+         }
+      } else {
+         m = {
+            ...m,
+            ...(body && { text: body })
          }
       }
    }
@@ -90,23 +94,50 @@ exports.sms = async (sock, ctx, m = {}) => {
             ...(into.expiration && { expiration: info.expiration })
          }
          
-         const quote = info.quotedMessage
+         const quoted = info.quotedMessage
          
-         if (quote) {
+         if (quoted) {
             
-            const quoted = {
+            const quote = {
                key: {
                   remoteJid: info.remoteJid || m.from,
                   participant: info.participant,
                   id: info.stanzaId,
                   fromMe: Object.values(bot).includes(info.participant)
                },
-               message: quote
+               message: quoted
             }
             
             m.quote = await exports.sms(sock, quote)
          }
       }
+      
+      if (isGroup) {
+         
+         const data = await sock.groupMetadata(m.from)
+         const users = data.participants.map(i => i.id)
+         const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
+         const isAdmin = admins.includes(m.sender)
+         const isBotAdmin = admins.includes(isLid ? bot.lid : bot.id)
+         const exp = data.ephemeralDuration
+         
+         m.isGroup = true
+         m.group = {
+            id: m.from,
+            name: data.subject,
+            open: data.announce,
+            size: data.size,
+            owner: data.owner,
+            ...(exp && { expiration: exp }),
+            isSenderAdmin: isAdmin,
+            isBotAdmin,
+            isCommunity: data.isCommunity,
+            admins,
+            users,
+            desc: data.desc
+         }
+      }
    }
+   
    return m
 }
