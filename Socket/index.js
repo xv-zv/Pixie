@@ -38,11 +38,11 @@ class Socket extends Events {
    #listEvents = (sock, saveCreds) => [
    {
       event: 'messages.upsert',
-      func: async ({ type, messages: [message] }) => {
+      func: async ({ type, messages: [msg] }) => {
          
-         if (!isRealMessage(message, message.key.id)) return
+         if (!isRealMessage(msg, msg.key.id)) return
          
-         const m = await Utils.sms({ ...this, ...sock }, message)
+         const m = await Utils.sms(this, msg)
          
          if (/^[_>~]/.test(m.text)) {
             
