@@ -10,9 +10,9 @@ class Methods {
       this.online = false
    }
    
-   close = () => {
+   close = (all) => {
       if (!this.#sock) return
-      if (this.online) this.#sock.ws.close()
+      this.#sock.ws.close()
       this.online = false
    }
    
