@@ -2,7 +2,9 @@ const {
    jidNormalizedUser,
    getContentType,
    isLidUser,
+   isJidStatusBroadcast,
    getDevice,
+   downloadMediaMessage,
    isJidGroup
 } = require('@whiskeysockets/baileys')
 
@@ -18,6 +20,7 @@ exports.sms = async (sock, ctx, m = {}) => {
    m.from = ctx.key.remoteJid
    
    const isGroup = isJidGroup(m.from)
+   const isBc = isJidStatusBroadcast(m.from)
    const isBot = ctx.key.fromMe && dv() == 'web'
    const isMe = ctx.key.fromMe && !isBot
    const user = ctx.key.participant || m.from
@@ -31,7 +34,8 @@ exports.sms = async (sock, ctx, m = {}) => {
       ...(isGroup && { isGroup }),
       ...(isUser && { isUser }),
       ...(isBot && { isBot }),
-      ...(isMe && { isMe })
+      ...(isMe && { isMe }),
+      ...(isBc && { isBc })
    }
    
    const type = getContentType(ctx.message)
@@ -56,6 +60,24 @@ exports.sms = async (sock, ctx, m = {}) => {
       }
    }
    
+   const isMedia = ('mimetype' in msg)
+   
+   if (isMedia) {
+      
+      const media = () => downloadMediaMessage(ctx, 'buffer')
+      
+      m = {
+         ...m,
+         isMedia,
+         type: type.replace('Message', ''),
+         mime: msg.mimetype,
+         ...(msg.isAnimated && { isAnimated: true }),
+         ...(msg.duration && { duration: msg.duration }),
+         media
+      }
+      
+   }
+   
    const info = msg.contextInfo
    
    if (info) {
@@ -67,10 +89,18 @@ exports.sms = async (sock, ctx, m = {}) => {
       if (quote) {
          
          const quoted = {
-            from
+            key: {
+               remoteJid: info.remoteJid || m.from,
+               participant: info.participant,
+               id: info.stanzaId,
+               fromMe: Object.values(bot).includes(info.participant)
+            },
+            message: quote
          }
          
+         m.quote = exports.sms(sock, quote)
       }
    }
-   return { m , info }
+   
+   return m
 }
