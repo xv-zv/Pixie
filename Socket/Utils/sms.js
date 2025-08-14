@@ -136,7 +136,7 @@ exports.sms = async (sock, ctx, q) => {
          }
       }
       
-      reply = (text, opc = {}) => sock.sendMessage(opc.id || from, { text }, { ephemeral: m.ephemeral || 0, quoted: ctx, ...opc })
+      m.reply = (text, opc = {}) => sock.sendMessage(opc.id || from, { text }, { ephemeral: m.ephemeral || 0, quoted: ctx, ...opc })
    }
    
    return m
