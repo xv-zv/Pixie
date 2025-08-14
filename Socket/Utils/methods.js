@@ -83,7 +83,7 @@ class Methods {
       const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
       const users = data.participants.map(i => i.id)
       const isComm = data.isCommunity
-      const ephemeral = data.ephemeralExpiration
+      const ephemeral = data.ephemeralDuration
       const useLid = data.addressingMode == 'lid'
       
       return {
