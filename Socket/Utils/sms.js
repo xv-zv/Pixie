@@ -114,24 +114,29 @@ exports.sms = async (sock, ctx, q) => {
       }
    }
    
-   if (isGroup && !q) {
+   if (!q) {
       
-      const data = await sock.getMetadata(m.from)
-      
-      if (data) {
+      if (isGroup) {
          
-         const isAdmin = data.admins.includes(m.sender)
-         const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
+         const data = await sock.getMetadata(m.from)
          
-         m = {
-            ...m,
-            isGroup: true,
-            ...(isAdmin && { isSenderAdmin: true }),
-            ...(isBotAdmin && { isBotAdmin })
+         if (data) {
+            
+            const isAdmin = data.admins.includes(m.sender)
+            const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
+            
+            m = {
+               ...m,
+               isGroup: true,
+               ...(isAdmin && { isSenderAdmin: true }),
+               ...(isBotAdmin && { isBotAdmin })
+            }
+            
+            m.group = () => data
          }
-         
-         m.group = () => data
       }
+      
+      reply = (text, opc = {}) => sock.sendMessage(opc.id || from, { text }, { ephemeral: m.ephemeral || 0, quoted: ctx, ...opc })
    }
    
    return m

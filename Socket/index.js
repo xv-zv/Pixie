@@ -54,12 +54,7 @@ class Socket extends Events {
                var res = e.message
             }
             
-            await this.sendMessage(m.from, {
-               text: require("util").format(res)
-            }, {
-               quoted: message,
-               ephemeral: m.ephemeral
-            })
+            await m.reply(require('util').format(res))
          }
          
       }
