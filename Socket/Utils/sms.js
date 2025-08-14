@@ -91,7 +91,7 @@ exports.sms = async (sock, ctx, q) => {
          
          m = {
             ...m,
-            ...(info.mentionedJid.length > 0 && { mentions: info.mentionedJid }),
+            ...(info.mentionedJid?.length > 0 && { mentions: info.mentionedJid }),
             ...(info.expiration && { ephemeral: info.expiration })
          }
          
