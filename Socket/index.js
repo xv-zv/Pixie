@@ -12,7 +12,7 @@ const fs = require('fs-extra');
 const pino = require('pino');
 
 class Socket extends Events {
-   
+   args
    constructor(args) {
       super()
       this.args = args

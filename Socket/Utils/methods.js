@@ -3,6 +3,7 @@ const {
 } = require('@whiskeysockets/baileys')
 
 class Methods {
+   online
    #sock
    constructor(sock) {
       this.#sock = sock
@@ -21,7 +22,7 @@ class Methods {
       
       const data = await this.#sock.groupMetadata(id)
       const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
-      const users = data.participants.map(i => id)
+      const users = data.participants.map(i => i.id)
       
       return {
          id: data.id,
@@ -29,11 +30,11 @@ class Methods {
          owner: data.owner,
          size: data.size,
          creation: data.creation,
-         open: data.announce,
+         open: !data.announce,
          isComm: data.isCommunity,
          admins,
          users,
-         desc
+         desc: data.desc
       }
    }
 }
