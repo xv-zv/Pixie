@@ -121,7 +121,14 @@ exports.sms = async (sock, ctx, m = {}) => {
          const isBotAdmin = admins.includes(isLid ? bot.lid : bot.id)
          const exp = data.ephemeralDuration
          
-         m.isGroup = true
+         
+         m = {
+            ...m,
+            isGroup: true,
+            ...(isAdmin && { isSenderAdmin: true }),
+            ...(isBotAdmin && { isBotAdmin })
+         }
+         
          m.group = () => ({
             id: m.from,
             name: data.subject,
@@ -129,8 +136,6 @@ exports.sms = async (sock, ctx, m = {}) => {
             size: data.size,
             owner: data.owner,
             ...(exp && { expiration: exp }),
-            isSenderAdmin: isAdmin,
-            isBotAdmin,
             isCommunity: data.isCommunity,
             admins,
             users,
