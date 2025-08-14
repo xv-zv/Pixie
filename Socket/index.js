@@ -40,9 +40,7 @@ class Socket extends Events {
       event: 'messages.upsert',
       func: async ({ type, messages: [message] }) => {
          
-         const wsOnline = sock.ws.socket._readyState == 1
-         
-         if (!wsOnline || !isRealMessage(message, message.key.id)) return
+         if (!this.online || !isRealMessage(message, message.key.id)) return
          
          const m = await Utils.sms({ ...this, ...sock }, message)
          

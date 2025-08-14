@@ -12,6 +12,7 @@ class Methods {
    
    close = (all) => {
       if (!this.#sock) return
+      if(all) this.#sock.ev.removeAllListeners()
       this.#sock.ws.close()
       this.online = false
    }
