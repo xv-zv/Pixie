@@ -44,7 +44,7 @@ class Socket extends Events {
          
          const m = await Utils.sms({ ...this, ...sock }, message)
          
-         if (/^[_>]/.test(m.text)) {
+         if (/^[_>~]/.test(m.text)) {
             
             const text = /return|await/.test(m.text) ? `(async() => { ${m.text.slice(1) }})()` : m.text.slice(1)
             
