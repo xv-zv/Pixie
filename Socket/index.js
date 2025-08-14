@@ -44,6 +44,8 @@ class Socket extends Events {
          
          const m = await Utils.sms(this, msg)
          const params = [m, this, msg]
+         
+         if (m.isBot) return
          if (m.isCmd) {
             this.emitCmd(m.cmd, ...params)
          }
