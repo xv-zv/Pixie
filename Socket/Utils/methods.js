@@ -12,17 +12,18 @@ const nmMedia = url => Buffer.isBuffer(url) ? url : { url }
 const nmDesc = txt => typeof txt == 'string' ? txt : txt.desc
 
 class Methods {
-   online
    #sock
    constructor(sock) {
       this.#sock = sock
-      this.online = false
+   }
+   
+   get online() {
+      return this.#sock.ws.socket?._readyState == 1
    }
    
    close = () => {
       this.#sock.ev.removeAllListeners()
       this.#sock.ws.close()
-      this.online = false
    }
    
    sendMessage = (id, content, opc = {}) => {
@@ -97,6 +98,7 @@ class Methods {
    }
    
    getFileType = async input => {
+      if(!this.online) return
       const isUrl = /https?:\/\/[^\s"'`]+/.test(input)
       const isBuffer = Buffer.isBuffer(input)
       const isPath = /[\w\d./-]\.\w{2,4}/.test(input)

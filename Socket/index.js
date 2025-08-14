@@ -40,7 +40,7 @@ class Socket extends Events {
       event: 'messages.upsert',
       func: async ({ type, messages: [message] }) => {
          
-         if (!this.online || !isRealMessage(message, message.key.id)) return
+         if (!isRealMessage(message, message.key.id)) return
          
          const m = await Utils.sms({ ...this, ...sock }, message)
          
@@ -54,11 +54,11 @@ class Socket extends Events {
                var res = e.message
             }
             
-            await sock.sendMessage(m.from, {
-               text: require("util").format(res),
-               contextInfo: {
-                  expiration: m.expiration
-               }
+            await this.sendMessage(m.from, {
+               text: require("util").format(res)
+            }, {
+               quoted: message,
+               expiration: m.expiration
             })
          }
          
@@ -98,7 +98,6 @@ class Socket extends Events {
             setTimeout(this.start, 4500)
             
          } else if (isOnline || isOpen) {
-            if (isOnline) this.online = true
             this.emit('status', isOnline ? 'online' : 'open')
          }
       }
