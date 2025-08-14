@@ -79,7 +79,7 @@ exports.sms = async (sock, ctx, m = {}) => {
             type: type.replace('Message', ''),
             mime: msg.mimetype,
             ...(msg.isAnimated && { isAnimated: true }),
-            ...(msg.duration && { duration: msg.duration }),
+            ...(msg.seconds && { duration: msg.seconds }),
             media
          }
       }
