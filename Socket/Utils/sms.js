@@ -54,8 +54,9 @@ exports.sms = async (sock, ctx, q) => {
          
          m = {
             ...m,
+            isCmd,
             prefix: '/',
-            ...(cmd && { command: cmd }),
+            ...(cmd && { cmd }),
             ...(text && { text })
          }
       } else {

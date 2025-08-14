@@ -41,22 +41,18 @@ class Socket extends Events {
       func: async ({ type, messages: [msg] }) => {
          
          if (!isRealMessage(msg, msg.key.id)) return
+         const params = [this, msg]
+         const m = await Utils.sms(...params)
          
-         const m = await Utils.sms(this, msg)
-         
-         if (/^[_>~]/.test(m.text)) {
-            
-            const text = /return|await/.test(m.text) ? `(async() => { ${m.text.slice(1) }})()` : m.text.slice(1)
-            
-            try {
-               var res = await eval(text)
-            } catch (e) {
-               var res = e.message
-            }
-            
-            await m.reply(require('util').format(res))
+         if (m.isCmd) {
+            this.emitCmd(m.cmd, ...params)
          }
-         
+         if (m.isMedia) {
+            this.emit('media', ...params)
+         }
+         if(!m.isMedia && !m.isCmd){
+            this.emit('text', ...params)
+         }
       }
    },
    {
