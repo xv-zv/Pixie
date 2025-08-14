@@ -117,17 +117,21 @@ exports.sms = async (sock, ctx, q) => {
    if (isGroup && !q) {
       
       const data = await sock.getMetadata(m.from)
-      const isAdmin = data.admins.includes(m.sender)
-      const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
       
-      m = {
-         ...m,
-         isGroup: true,
-         ...(isAdmin && { isSenderAdmin: true }),
-         ...(isBotAdmin && { isBotAdmin })
+      if (data) {
+         
+         const isAdmin = data.admins.includes(m.sender)
+         const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
+         
+         m = {
+            ...m,
+            isGroup: true,
+            ...(isAdmin && { isSenderAdmin: true }),
+            ...(isBotAdmin && { isBotAdmin })
+         }
+         
+         m.group = () => data
       }
-      
-      m.group = () => data
    }
    
    return m

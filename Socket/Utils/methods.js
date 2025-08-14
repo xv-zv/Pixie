@@ -10,15 +10,15 @@ class Methods {
       this.online = false
    }
    
-   close = (all) => {
-      if (!this.#sock) return
-      if(all) this.#sock.ev.removeAllListeners()
+   close = () => {
+      this.#sock.ev.removeAllListeners()
       this.#sock.ws.close()
       this.online = false
    }
    
    getMetadata = async id => {
-      if (!id || !isJidGroup(id)) return {}
+      
+      if (!this.online || !isJidGroup(id)) return
       
       const data = await this.#sock.groupMetadata(id)
       const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
