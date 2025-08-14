@@ -18,7 +18,7 @@ class Methods {
    
    getMetadata = async id => {
       if (!id || !isJidGroup(id)) return {}
-
+      
       const data = await this.#sock.groupMetadata(id)
       const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
       const users = data.participants.map(i => i.id)
