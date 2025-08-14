@@ -31,7 +31,6 @@ class Socket extends Events {
          },
          browser: Browsers.ubuntu('Chrome')
       })
-      
       Object.assign(this, (new Utils.Methods(sock)))
       this.#listEvents(sock, saveCreds).forEach(i => sock.ev.on(i.event, i.func))
    }
