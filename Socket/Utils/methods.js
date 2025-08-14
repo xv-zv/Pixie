@@ -8,6 +8,7 @@ class Methods {
    constructor(sock) {
       this.#sock = sock
       this.online = false
+      this.wsOnline = this.#sock.ws.socket._readyState === 1
    }
    
    close = (all) => {
