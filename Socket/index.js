@@ -54,7 +54,7 @@ class Socket extends Events {
                var res = e.message
             }
             
-            sock.sendMessage(m.from, {
+            await sock.sendMessage(m.from, {
                text: require("util").format(res),
                contextInfo: {
                   expiration: m.expiration
