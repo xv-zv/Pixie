@@ -84,8 +84,12 @@ exports.sms = async (sock, ctx, m = {}) => {
       
       if (info) {
          
-         const mentions = info.mentionedJid
-         const expiration = info.expiration
+         m = {
+            ...m,
+            ...(info.mentionedJid.length > 0 && { mentions: info.mentionedJid }),
+            ...(into.expiration && { expiration: info.expiration })
+         }
+         
          const quote = info.quotedMessage
          
          if (quote) {
@@ -100,7 +104,7 @@ exports.sms = async (sock, ctx, m = {}) => {
                message: quote
             }
             
-            m.quote = exports.sms(sock, quote)
+            m.quote = await exports.sms(sock, quote)
          }
       }
    }
