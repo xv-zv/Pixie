@@ -31,7 +31,7 @@ exports.sms = async (sock, ctx, m = {}) => {
    
    m = {
       ...m,
-      ...(ctx.name && { name: ctx.name }),
+      ...(ctx.pushName && { name: ctx.pushName }),
       ...(isUser && { isUser }),
       ...(isBot && { isBot }),
       ...(isMe && { isMe }),
