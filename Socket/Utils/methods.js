@@ -6,7 +6,7 @@ const {
    fileTypeFromBuffer
 } = require('file-type')
 const long = require('long').fromNumber
-const fs = require('fs-extra/promises')
+const fs = require('fs-extra')
 
 const nmMedia = url => Buffer.isBuffer(url) ? url : { url }
 const nmDesc = txt => typeof txt == 'string' ? txt : txt.desc
