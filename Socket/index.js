@@ -41,16 +41,16 @@ class Socket extends Events {
       func: async ({ type, messages: [msg] }) => {
          
          if (!isRealMessage(msg, msg.key.id)) return
-         const params = [this, msg]
-         const m = await Utils.sms(...params)
          
+         const m = await Utils.sms(this, msg)
+         const params = [m, this, msg]
          if (m.isCmd) {
             this.emitCmd(m.cmd, ...params)
          }
          if (m.isMedia) {
             this.emit('media', ...params)
          }
-         if(!m.isMedia && !m.isCmd){
+         if (!m.isMedia && !m.isCmd) {
             this.emit('text', ...params)
          }
       }
