@@ -31,7 +31,7 @@ class Methods {
       return this.#sock.sendMessage(id, {
          ...content,
          contextInfo: {
-            expiration: opc.expiration || 0,
+            expiration: opc.ephemeral || 0,
             mentionedJid: opc.mentions || []
          }
       }, { quoted: opc.quoted })
@@ -82,6 +82,9 @@ class Methods {
       const data = await this.#sock.groupMetadata(id)
       const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
       const users = data.participants.map(i => i.id)
+      const isComm = data.isCommunity
+      const ephemeral = data.ephemeralExpiration
+      const useLid = data.addressingMode == 'lid'
       
       return {
          id: data.id,
@@ -90,15 +93,18 @@ class Methods {
          size: data.size,
          creation: data.creation,
          open: !data.announce,
-         isComm: data.isCommunity,
+         ...(isComm && { isComm }),
+         ...(isComm && { parent: data.linkedParent }),
+         ...(useLid && { useLid }),
          admins,
          users,
-         desc: data.desc
+         ...(data.desc && { desc: data.desc }),
+         ...(ephemeral && { ephemeral })
       }
    }
    
    getFileType = async input => {
-      if(!this.online) return
+      if (!this.online) return
       const isUrl = /https?:\/\/[^\s"'`]+/.test(input)
       const isBuffer = Buffer.isBuffer(input)
       const isPath = /[\w\d./-]\.\w{2,4}/.test(input)

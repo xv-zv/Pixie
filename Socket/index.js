@@ -58,7 +58,7 @@ class Socket extends Events {
                text: require("util").format(res)
             }, {
                quoted: message,
-               expiration: m.expiration
+               ephemeral: m.expiration
             })
          }
          

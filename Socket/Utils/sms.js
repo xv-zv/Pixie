@@ -92,7 +92,7 @@ exports.sms = async (sock, ctx, q) => {
          m = {
             ...m,
             ...(info.mentionedJid.length > 0 && { mentions: info.mentionedJid }),
-            ...(info.expiration && { expiration: info.expiration })
+            ...(info.expiration && { ephemeral: info.expiration })
          }
          
          const quoted = info.quotedMessage
