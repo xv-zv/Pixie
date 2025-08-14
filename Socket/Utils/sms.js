@@ -60,47 +60,49 @@ exports.sms = async (sock, ctx, m = {}) => {
       }
    }
    
-   const isMedia = ('mimetype' in msg)
-   
-   if (isMedia) {
+   if (typeof msg !== 'string') {
       
-      const media = () => downloadMediaMessage(ctx, 'buffer')
+      const isMedia = ('mimetype' in msg)
       
-      m = {
-         ...m,
-         isMedia,
-         type: type.replace('Message', ''),
-         mime: msg.mimetype,
-         ...(msg.isAnimated && { isAnimated: true }),
-         ...(msg.duration && { duration: msg.duration }),
-         media
-      }
-      
-   }
-   
-   const info = msg.contextInfo
-   
-   if (info) {
-      
-      const mentions = info.mentionedJid
-      const expiration = info.expiration
-      const quote = info.quotedMessage
-      
-      if (quote) {
+      if (isMedia) {
          
-         const quoted = {
-            key: {
-               remoteJid: info.remoteJid || m.from,
-               participant: info.participant,
-               id: info.stanzaId,
-               fromMe: Object.values(bot).includes(info.participant)
-            },
-            message: quote
+         const media = () => downloadMediaMessage(ctx, 'buffer')
+         
+         m = {
+            ...m,
+            isMedia,
+            type: type.replace('Message', ''),
+            mime: msg.mimetype,
+            ...(msg.isAnimated && { isAnimated: true }),
+            ...(msg.duration && { duration: msg.duration }),
+            media
          }
          
-         m.quote = exports.sms(sock, quote)
+      }
+      
+      const info = msg.contextInfo
+      
+      if (info) {
+         
+         const mentions = info.mentionedJid
+         const expiration = info.expiration
+         const quote = info.quotedMessage
+         
+         if (quote) {
+            
+            const quoted = {
+               key: {
+                  remoteJid: info.remoteJid || m.from,
+                  participant: info.participant,
+                  id: info.stanzaId,
+                  fromMe: Object.values(bot).includes(info.participant)
+               },
+               message: quote
+            }
+            
+            m.quote = exports.sms(sock, quote)
+         }
       }
    }
-   
    return m
 }
