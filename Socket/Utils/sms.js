@@ -10,7 +10,7 @@ const {
 
 exports.sms = async (sock, ctx, q) => {
    
-   const m = {}
+   let m = {}
    const dv = () => getDevice(ctx.key.id)
    const bot = {
       id: jidNormalizedUser(sock.user?.id),
