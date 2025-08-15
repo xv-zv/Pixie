@@ -6,7 +6,7 @@ Object.assign(global, {
    origen: __dirname 
 })
 
-const load = new Utils.load(PATH.join(origen,'Message'))
+const load = new Utils.Load(PATH.join(origen,'Message'))
 load.load(load.folder)
 const { cmds, others } = load.files
 
