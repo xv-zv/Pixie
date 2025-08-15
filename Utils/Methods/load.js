@@ -5,11 +5,7 @@ class Load {
    constructor(folder) {
       this.folder = folder
       this.files = {
-         cmds: {},
-         others: {
-            media: [],
-            text: []
-         }
+         cmds: {}
       }
    }
    
@@ -46,14 +42,10 @@ class Load {
             path
          }
          
-         const func = Object.assign(file.load || file.func, params)
+         const func = Object.assign(file.func, params)
          
          if (isCmd) {
             this.files.cmds[file.cmd] = func
-         } else if (isMedia) {
-            this.files.others.media.push(func)
-         } else {
-            this.files.others.text.push(func)
          }
       }
    }
