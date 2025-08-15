@@ -8,7 +8,7 @@ class Events {
       return this
    }
    
-   command = (command, listener) => {
+   cmd = (command, listener) => {
       if (this.#commands[command]) return
       this.#commands[command] = listener
    }

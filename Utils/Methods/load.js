@@ -29,7 +29,7 @@ class Load {
    }
    
    read = (path, name) => {
-      if (/.js$/.test(name)) return
+      if (!/.js$/.test(name)) return
       
       const file = require(path)
       
