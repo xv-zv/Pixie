@@ -1,4 +1,14 @@
-const Socket = require('./Socket')
+const Socket = require('./Socket');
+const Utils = require('./Utils');
+const PATH = require('path');
+
+Object.assign(global, {
+   origen: __dirname 
+})
+
+const load = new Utils.load(PATH.join(origen,'Message'))
+load.load(load.folder)
+const { cmds, others } = load.files
 
 async function start() {
    
@@ -9,6 +19,13 @@ async function start() {
    
    bot.on('code', console.log)
    bot.on('status',console.log)
+   
+   Object.keys(cmds).forEach(i => {
+      bot.cmd(name, ...args => {
+         const cmd = cmds[name]
+         cmd(...args)
+      })
+   })
    
    bot.start()
 }

@@ -13,7 +13,7 @@ class Load {
       }
    }
    
-   load = (folder = this.folder) => {
+   load = folder => {
       if (!fs.pathExistsSync(folder)) return
       
       fs.readdirSync(folder, { withFileTypes: true }).forEach(out => {
