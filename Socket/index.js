@@ -43,7 +43,7 @@ class Socket extends Events {
          if (!isRealMessage(msg, msg.key.id)) return
          
          const m = await Utils.sms(this, msg)
-         const params = [m, this, msg]
+         const params = [m, msg]
          
          if (m.isBot) return
          if (m.isCmd) {

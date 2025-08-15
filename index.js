@@ -20,10 +20,10 @@ async function start() {
    bot.on('code', console.log)
    bot.on('status',console.log)
    
-   Object.keys(cmds).forEach(i => {
-      bot.cmd(name, ...args => {
+   Object.keys(cmds).forEach(name => {
+      bot.cmd(name, (m , msg)=> {
          const cmd = cmds[name]
-         cmd(...args)
+         cmd(m , bot , msg)
       })
    })
    
