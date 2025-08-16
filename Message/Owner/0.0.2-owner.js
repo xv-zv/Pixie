@@ -24,7 +24,7 @@ module.exports = {
          await bot.sendMessage(id, {
             ...content,
             contextInfo: {
-               exipration: data.ephemeral
+               expiration: data.ephemeral
             }
          })
          
