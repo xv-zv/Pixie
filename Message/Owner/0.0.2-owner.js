@@ -21,11 +21,8 @@ module.exports = {
       for (const { id, ...data } of groups) {
          if (!data.open && !data.admins.includes(data.useLid ? bot.user.lid : bot.user.id)) continue
          
-         await bot.sendMessage(id, {
-            ...content,
-            contextInfo: {
-               expiration: data.ephemeral
-            }
+         await bot.sendMessage(id, content, {
+            ephemeral: data.ephemeral
          })
          
          await f.delay(Number(core.time || 6) * 1000)
