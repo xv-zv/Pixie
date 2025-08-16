@@ -18,7 +18,7 @@ const owners = core.owners.reduce((_, i) => [i.id, i.lid].filter(Boolean), [])
 async function start() {
    
    const bot = new Socket({
-      path: './Sesion',
+      path: core.path,
       phone: '527203011517',
       owners
    })
@@ -51,10 +51,6 @@ async function start() {
             m.reply(format(text))
          }
       }
-   },
-   {
-      event: 'media',
-      func: (m, msg) => {}
    }]
    
    events.forEach(({ event, func }) => {
