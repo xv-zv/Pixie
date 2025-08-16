@@ -28,6 +28,9 @@ async function start() {
    Object.keys(cmds).forEach(name => {
       bot.cmd(name, (m, msg) => {
          const cmd = cmds[name]
+         if (cmd.isOwner && !m.isOwner) return
+         if (cmd.isGroup && !m.isGroup) return
+         if (cmd.isAdmin && (!m.isUserAdmin && !m.isBotAdmin)) return
          cmd(m, bot, msg)
       })
    })

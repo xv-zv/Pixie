@@ -7,9 +7,7 @@ const {
 } = require('file-type')
 const long = require('long').fromNumber
 const fs = require('fs-extra')
-
-const nmMedia = url => Buffer.isBuffer(url) ? url : { url }
-const nmDesc = txt => typeof txt == 'string' ? txt : txt.desc
+const normalize = require('./normalize.js')
 
 class Methods {
    #sock
@@ -39,8 +37,8 @@ class Methods {
    
    sendImage = (id, content, opc = {}) => {
       return this.sendMessage(id, {
-         image: nmMedia(content),
-         caption: nmDesc(opc),
+         image: normalize.media(content),
+         caption: normalize.desc(opc),
          mimetype: opc.mime || 'image/jpeg',
          viewOnce: Boolean(opc.once)
       }, opc)
@@ -48,8 +46,8 @@ class Methods {
    
    sendVideo = (id, content, opc = {}) => {
       return this.sendMessage(id, {
-         video: nmMedia(content),
-         caption: nmDesc(opc),
+         video: normalize.media(content),
+         caption: normalize.desc(opc),
          mimetype: opc.mime || 'video/mp4',
          viewOnce: Boolean(opc.once)
       }, opc)
@@ -57,7 +55,7 @@ class Methods {
    
    sendAudio = (id, content, opc = {}) => {
       return this.sendMessage(id, {
-         audio: nmMedia(content),
+         audio: normalize.media(content),
          mimetype: opc.mime || 'audio/mpeg',
          ptt: Boolean(opc.note),
          viewOnce: Boolean(opc.once)
@@ -67,8 +65,8 @@ class Methods {
    sendFile = async (id, media, opc = {}) => {
       const { ext, mime } = await this.getFileType(media)
       return this.sendMessage(id, {
-         document: nmMedia(media),
-         caption: nmDesc(opc),
+         document: normalize.media(media),
+         caption: normalize.desc(opc),
          fileName: (opc.name || mime.split('/')[0]) + '.' + ext,
          mimetype: mime,
          fileLength: opc.size ? long(Number(opc.size) * 1000000, true) : null
@@ -76,30 +74,18 @@ class Methods {
    }
    
    getMetadata = async id => {
-      
       if (!this.online || !isJidGroup(id)) return
       
       const data = await this.#sock.groupMetadata(id)
-      const admins = data.participants.filter(i => i.admin !== null).map(i => i.id)
-      const users = data.participants.map(i => i.id)
-      const isComm = data.isCommunity
-      const ephemeral = data.ephemeralDuration
-      const useLid = data.addressingMode == 'lid'
-      
-      return {
-         id: data.id,
-         name: data.subject,
-         owner: data.owner,
-         size: data.size,
-         creation: data.creation,
-         open: !data.announce,
-         ...(isComm && { isComm }),
-         ...(isComm && { parent: data.linkedParent }),
-         ...(useLid && { useLid }),
-         admins,
-         users,
-         ...(data.desc && { desc: data.desc }),
-         ...(ephemeral && { ephemeral })
+      return normalize.group(data)
+   }
+   
+   fetchAllGroups = async () => {
+      try {
+         const groups = Object.values(await this.#sock.groupFetchAllParticipating()).filter(i => !i.isCommunity)
+         return groups.map(data => normalize.group(data))
+      } catch (e) {
+         return []
       }
    }
    

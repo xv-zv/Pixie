@@ -114,7 +114,7 @@ exports.sms = async (sock, ctx, q) => {
                },
                message: quoted
             }
-            
+            m.isQuote = true
             m.quote = await exports.sms(sock, quote, true)
          }
       }
@@ -143,7 +143,10 @@ exports.sms = async (sock, ctx, q) => {
          }
       }
       
+      m.react = text => sock.sendMessage(m.from, { react: { text, key: ctx.key } })
+      
       m.reply = (text, opc = {}) => sock.sendMessage(opc.id || m.from, { text }, { ephemeral: m.ephemeral || 0, quoted: ctx, ...opc })
+      
    }
    
    return m
