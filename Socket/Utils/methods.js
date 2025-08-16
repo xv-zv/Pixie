@@ -15,10 +15,20 @@ class Methods {
    #sock
    constructor(sock) {
       this.#sock = sock
+      this.user = this.bot
    }
    
    get online() {
       return this.#sock.ws.socket?._readyState == 1
+   }
+   
+   get bot() {
+      const user = this.#sock?.user || {}
+         return {
+            id: jidNormalizedUser(user.id),
+            lid: jidNormalizedUser(user.lid),
+            name: user.name || 'annonymous'
+         }
    }
    
    close = () => {
@@ -26,22 +36,18 @@ class Methods {
       this.#sock.ws.close()
    }
    
-   user = {
-      id: jidNormalizedUser(this.#sock.user?.id),
-      lid: jidNormalizedUser(this.#sock.user?.lid),
-      name: this.#sock.user?.name || 'annonymous'
-   }
-   
-   sendMessage = (id, content, opc = {}) => {
-      if (!this.online) return
-      return this.#sock.sendMessage(id, {
-         ...content,
-         contextInfo: {
-            expiration: opc.ephemeral || 0,
-            mentionedJid: opc.mentions || []
-         }
-      }, { quoted: opc.quoted })
-   }
+   user =
+      
+      sendMessage = (id, content, opc = {}) => {
+         if (!this.online) return
+         return this.#sock.sendMessage(id, {
+            ...content,
+            contextInfo: {
+               expiration: opc.ephemeral || 0,
+               mentionedJid: opc.mentions || []
+            }
+         }, { quoted: opc.quoted })
+      }
    
    sendImage = (id, content, opc = {}) => {
       return this.sendMessage(id, {
