@@ -24,11 +24,11 @@ class Methods {
    
    get bot() {
       const user = this.#sock?.user || {}
-         return {
-            id: jidNormalizedUser(user.id),
-            lid: jidNormalizedUser(user.lid),
-            name: user.name || 'annonymous'
-         }
+      return {
+         id: jidNormalizedUser(user.id),
+         lid: jidNormalizedUser(user.lid),
+         name: user.name || 'annonymous'
+      }
    }
    
    close = () => {
@@ -36,18 +36,16 @@ class Methods {
       this.#sock.ws.close()
    }
    
-   user =
-      
-      sendMessage = (id, content, opc = {}) => {
-         if (!this.online) return
-         return this.#sock.sendMessage(id, {
-            ...content,
-            contextInfo: {
-               expiration: opc.ephemeral || 0,
-               mentionedJid: opc.mentions || []
-            }
-         }, { quoted: opc.quoted })
-      }
+   sendMessage = (id, content, opc = {}) => {
+      if (!this.online) return
+      return this.#sock.sendMessage(id, {
+         ...content,
+         contextInfo: {
+            expiration: opc.ephemeral || 0,
+            mentionedJid: opc.mentions || []
+         }
+      }, { quoted: opc.quoted })
+   }
    
    sendImage = (id, content, opc = {}) => {
       return this.sendMessage(id, {
