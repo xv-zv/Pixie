@@ -28,7 +28,7 @@ module.exports = {
             }
          })
          
-         await f.delay(core.time * 1000)
+         await f.delay(Number(core.time || 6) * 1000)
       }
       
       await m.react('✅')
