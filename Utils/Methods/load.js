@@ -22,6 +22,7 @@ class Load {
             this.read(path, out.name)
          }
       })
+      return this
    }
    
    read = (path, name) => {

@@ -10,6 +10,8 @@ const {
 
 exports.sms = async (sock, ctx, q) => {
    
+   const owners = sock.args.owners || []
+   
    let m = {}
    const dv = () => getDevice(ctx.key.id)
    const bot = {
@@ -30,11 +32,14 @@ exports.sms = async (sock, ctx, q) => {
    
    m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? bot.lid : bot.id) : user)
    
+   const isOwner = owners.some(i => m.user.includes(i))
+   
    m = {
       ...m,
       ...(ctx.pushName && { name: ctx.pushName }),
       ...(isUser && { isUser }),
       ...(isBot && { isBot }),
+      ...(isOwner && { isOwner }),
       ...(isMe && { isMe }),
       ...(isBc && { isBc })
    }
@@ -130,7 +135,8 @@ exports.sms = async (sock, ctx, q) => {
                ...m,
                isGroup: true,
                ...(isAdmin && { isUserAdmin: true }),
-               ...(isBotAdmin && { isBotAdmin })
+               ...(isBotAdmin && { isBotAdmin }),
+               ...(isOwner && isAdmin && { isOwnerAdmin: true })
             }
             
             m.group = () => data

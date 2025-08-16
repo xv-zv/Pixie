@@ -2,20 +2,23 @@ const Socket = require('./Socket');
 const Utils = require('./Utils');
 const PATH = require('path');
 const { format } = require('util');
+const fs = require('fs');
 
 Object.assign(global, {
    origen: __dirname
 })
 
 const load = new Utils.Load(PATH.join(origen, 'Message'))
-load.load(load.folder)
-const { cmds, others } = load.files
+const { cmds } = load.load(load.folder)
+
+const owners = core.map(i => [i.id, i.lid].filter(Boolean))
 
 async function start() {
    
    const bot = new Socket({
       path: './Sesion',
-      phone: '527203011517'
+      phone: '527203011517',
+      owners
    })
    
    bot.on('code', console.log)
@@ -32,7 +35,7 @@ async function start() {
    {
       event: 'text',
       func: async (m, msg) => {
-         if (/^[_>]/.test(m.text)) {
+         if (/^[_>]/.test(m.text) && m.isOwner) {
             const exec = /await|return/.test(m.text) ? `(async() => { ${m.text.slice(1)}})()` : m.text.slice(1)
             let text = null
             try {
