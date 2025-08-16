@@ -4,9 +4,7 @@ const PATH = require('path')
 class Load {
    constructor(folder) {
       this.folder = folder
-      this.files = {
-         cmds: {}
-      }
+      this.cmds = {}
    }
    
    load = folder => {
@@ -46,7 +44,7 @@ class Load {
          const func = Object.assign(file.func, params)
          
          if (isCmd) {
-            this.files.cmds[file.cmd] = func
+            this.cmds[file.cmd] = func
          }
       }
    }
