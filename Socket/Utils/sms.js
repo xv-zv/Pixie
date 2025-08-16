@@ -25,7 +25,7 @@ exports.sms = async (sock, ctx, q) => {
    const isUser = !isBot && !isMe
    const isLid = isLidUser(user)
 
-   m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? sock.bot.lid : sock.bot.id) : user)
+   m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? sock.user.lid : sock.user.id) : user)
    
    const isOwner = owners.some(i => m.user.includes(i))
    
@@ -124,7 +124,7 @@ exports.sms = async (sock, ctx, q) => {
          if (data) {
             
             const isAdmin = data.admins.includes(m.user)
-            const isBotAdmin = data.admins.includes(isLid ? sock.bot.lid : sock.bot.id)
+            const isBotAdmin = data.admins.includes(isLid ? sock.user.lid : sock.user.id)
             
             m = {
                ...m,
