@@ -10,7 +10,7 @@ Object.assign(global, {
 })
 
 const load = new Utils.Load(PATH.join(origen, 'Message'))
-const { cmds } = load.load(load.folder)
+const { cmds = {} } = load.load(load.folder)
 
 const owners = core.owners.map(i => [i.id, i.lid].filter(Boolean))
 
