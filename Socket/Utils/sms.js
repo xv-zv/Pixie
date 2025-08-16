@@ -24,7 +24,7 @@ exports.sms = async (sock, ctx, q) => {
    const user = ctx.key.participant || m.from
    const isUser = !isBot && !isMe
    const isLid = isLidUser(user)
-   
+
    m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? sock.bot.lid : sock.bot.id) : user)
    
    const isOwner = owners.some(i => m.user.includes(i))
