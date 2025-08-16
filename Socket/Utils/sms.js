@@ -105,7 +105,7 @@ exports.sms = async (sock, ctx, q) => {
                   remoteJid: info.remoteJid || m.from,
                   participant: info.participant,
                   id: info.stanzaId,
-                  fromMe: Object.values(bot).includes(info.participant)
+                  fromMe: Object.values(sock.user).includes(info.participant)
                },
                message: quoted
             }
