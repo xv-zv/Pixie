@@ -5,7 +5,8 @@ const { format } = require('util');
 const fs = require('fs');
 
 Object.assign(global, {
-   origen: __dirname
+   origen: __dirname,
+   core: JSON.parse(fs.readFileSync('./Socket/config.json'))
 })
 
 const load = new Utils.Load(PATH.join(origen, 'Message'))
