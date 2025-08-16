@@ -1,6 +1,8 @@
 const {
-   isJidGroup
+   isJidGroup,
+   jidNormalizedUser
 } = require('@whiskeysockets/baileys')
+
 const {
    fileTypeFromStream,
    fileTypeFromBuffer
@@ -22,6 +24,12 @@ class Methods {
    close = () => {
       this.#sock.ev.removeAllListeners()
       this.#sock.ws.close()
+   }
+   
+   user = {
+      id: jidNormalizedUser(this.#sock.user?.id),
+      lid: jidNormalizedUser(this.#sock.user?.lid),
+      name: this.#sock.user?.name || 'annonymous'
    }
    
    sendMessage = (id, content, opc = {}) => {

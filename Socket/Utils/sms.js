@@ -14,11 +14,6 @@ exports.sms = async (sock, ctx, q) => {
    
    let m = {}
    const dv = () => getDevice(ctx.key.id)
-   const bot = {
-      id: jidNormalizedUser(sock.user?.id),
-      lid: jidNormalizedUser(sock.user?.lid),
-      name: sock.user?.name || 'annonymous'
-   }
    
    m.from = ctx.key.remoteJid
    
@@ -30,7 +25,7 @@ exports.sms = async (sock, ctx, q) => {
    const isUser = !isBot && !isMe
    const isLid = isLidUser(user)
    
-   m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? bot.lid : bot.id) : user)
+   m.user = jidNormalizedUser(isGroup ? user : !isUser ? (isLid ? sock.bot.lid : sock.bot.id) : user)
    
    const isOwner = owners.some(i => m.user.includes(i))
    
@@ -129,7 +124,7 @@ exports.sms = async (sock, ctx, q) => {
          if (data) {
             
             const isAdmin = data.admins.includes(m.user)
-            const isBotAdmin = data.admins.includes(isLid ? bot.lid : bot.id)
+            const isBotAdmin = data.admins.includes(isLid ? sock.bot.lid : sock.bot.id)
             
             m = {
                ...m,
@@ -146,7 +141,6 @@ exports.sms = async (sock, ctx, q) => {
       m.react = text => sock.sendMessage(m.from, { react: { text, key: ctx.key } })
       
       m.reply = (text, opc = {}) => sock.sendMessage(opc.id || m.from, { text }, { ephemeral: m.ephemeral || 0, quoted: ctx, ...opc })
-      
    }
    
    return m
