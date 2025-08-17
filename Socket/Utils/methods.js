@@ -120,8 +120,7 @@ class Methods {
             }
             
             if (action == 'ephemeral') {
-               const epemeral = (content > 24 * 60 * 60) ? 0 : content * 60 * 60
-               return this.#sock.groupToggleEphemeral(id, epemeral)
+               return this.#sock.groupToggleEphemeral(id, [1, 7, 90].includes(content) ? content * 24 * 60 * 60 : 0)
             }
          }
       } catch (e) {
