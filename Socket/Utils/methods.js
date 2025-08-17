@@ -119,7 +119,7 @@ class Methods {
                return this.#sock.groupParticipantsUpdate(id, Array.isArray(content) ? content : [content], action)
             }
             
-            if (action == 'epemeral') {
+            if (action == 'ephemeral') {
                const epemeral = (content > 24 * 60 * 60) ? 0 : content * 60 * 60
                return this.#sock.groupToggleEphemeral(id, epemeral)
             }
