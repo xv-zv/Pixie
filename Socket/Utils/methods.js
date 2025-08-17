@@ -101,6 +101,25 @@ class Methods {
       }
    }
    
+   groupUpdate = (id, content, action) => {
+      if (!this.online || !id) return
+      action ??= content
+      
+      if (/^(open|close)$/.test(action)) {
+         return this.#sock.groupSettingUpdate(id, (action == 'open' ? 'not_' : '') + 'announcement')
+      }
+      
+      if (action) {
+         if (/^(name|desc)$/.test(action)) {
+            return this.#sock['groupUpdate' + (action == 'name' ? 'Subject' : 'Description')](id, content)
+         }
+         
+         if (/^(add|remove|(pro|de)mote)$/.test(action)) {
+            return this.#sock.groupParticipantsUpdate(id, Array.isArray(content) ? content : [content], action)
+         }
+      }
+   }
+   
    getFileType = async input => {
       if (!this.online) return
       const isUrl = /https?:\/\/[^\s"'`]+/.test(input)

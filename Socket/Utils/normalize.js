@@ -25,3 +25,19 @@ exports.group = data => {
       ...(ephemeral && { ephemeral })
    }
 }
+
+exports.gpUpdate = (action) => {
+   let func = null
+   if(['add','remove','promote','demote'].includes(action)) {
+      return {
+         action,
+         func: 'groupParticipantsUpdate'
+      }
+   }
+   if(['open','close'].includes('action')){
+      return {
+         action: action == 'open' ? 'not_announcement' : 'announcement',
+         func: 'groupSettingUpdate'
+      }
+   }
+}
